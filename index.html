@@ -18,6 +18,7 @@
   <!-- CRT Screen Overlay & Scanlines -->
   <div class="crt-overlay"></div>
   <div class="crt-scanline-bar"></div>
+  <div class="crt-screen-bezel"></div>
 
   <!-- Background Ambient Glows -->
   <div class="bg-glow bg-glow-1"></div>
@@ -367,6 +368,9 @@
         <button class="fan-tab-btn" id="tab-btn-sustainability">
           <i data-lucide="leaf"></i> Green Play Tracker
         </button>
+        <button class="fan-tab-btn" id="tab-btn-predictions">
+          <i data-lucide="brain-circuit"></i> AI Predictions & Recs
+        </button>
       </div>
 
       <!-- FAN PANEL TABS CONTENT -->
@@ -562,6 +566,63 @@
             <button class="glass-btn btn-sm" id="btn-new-eco-tip">
               Generate New Tip <i data-lucide="refresh-cw"></i>
             </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-TAB 4: AI Predictions & Recommendations -->
+      <div class="fan-tab-content" id="fan-tab-predictions">
+        <div class="predictions-body">
+          <div class="predictions-header-card glass-panel-inner">
+            <div class="console-tag"><i data-lucide="brain"></i> GEMINI COGNITIVE MODELLING</div>
+            <h3 class="retro-sub-title">CROWD PREDICTION & OPERATION CONTROLS</h3>
+            <p class="rec-intro-text">
+              Run real-time crowd modeling simulations driven by Gemini 1.5 Flash. The system compiles live gate delays, concession queue loads, and sector capacities to recommend mitigations.
+            </p>
+            <button class="action-submit-btn" id="btn-run-predictions">
+              RUN AI PREDICTION CORE <i data-lucide="zap"></i>
+            </button>
+          </div>
+
+          <!-- Simulation Loading screen -->
+          <div class="simulation-loading-box glass-panel-inner" id="predictions-loader" style="display: none;">
+            <div class="loading-animation-wrapper">
+              <span class="ticker-live-dot blinking"></span>
+              <span class="loading-text">[COMPILING SECTOR DATA FRAMES...]</span>
+            </div>
+            <div class="retro-progress-bar">
+              <div class="retro-progress-bar-fill" id="prediction-progress-fill"></div>
+            </div>
+          </div>
+
+          <!-- Dynamic Recommendations Output -->
+          <div class="predictions-output-box glass-panel-inner" id="predictions-output-container" style="display: none;">
+            <div class="console-header">
+              <span class="console-status" id="predictions-status-text">ANALYSIS COMPLETE (100% confidence)</span>
+            </div>
+            <div class="console-body" id="predictions-ai-content">
+              <!-- Dynamically populated by app.js -->
+            </div>
+          </div>
+          
+          <!-- Heatmap Telemetry -->
+          <h3 class="card-subtitle-bold section-divider"><i data-lucide="bar-chart-2"></i> Predicted Sector Loads (Next 30m)</h3>
+          <div class="density-telemetry-grid">
+            <div class="density-card">
+              <div class="density-name">Sector 104 (East)</div>
+              <div class="density-bar-container"><div class="density-bar-fill bg-danger-glow" style="width: 98%;"></div></div>
+              <div class="density-val">98% (Critical)</div>
+            </div>
+            <div class="density-card">
+              <div class="density-name">Sector 102 (East Outer)</div>
+              <div class="density-bar-container"><div class="density-bar-fill bg-warning-glow" style="width: 88%;"></div></div>
+              <div class="density-val">88% (Heavy)</div>
+            </div>
+            <div class="density-card">
+              <div class="density-name">Sector 101 (North East)</div>
+              <div class="density-bar-container"><div class="density-bar-fill bg-success-glow" style="width: 45%;"></div></div>
+              <div class="density-val">45% (Optimal)</div>
+            </div>
           </div>
         </div>
       </div>

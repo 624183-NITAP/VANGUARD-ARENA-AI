@@ -2178,4 +2178,234 @@ input[type="text"]:focus, select:focus {
   box-shadow: none !important;
 }
 
+/* ==========================================================================
+   ADVANCED RETRO ANIMATIONS & COGNITIVE THEME STYLES
+   ========================================================================== */
+
+/* CRT Power-On scale animation */
+@keyframes crt-power-on {
+  0% { transform: scaleY(0.005) scaleX(0); filter: brightness(5); }
+  60% { transform: scaleY(0.005) scaleX(1.02); filter: brightness(3); }
+  100% { transform: scaleY(1) scaleX(1); filter: brightness(1); }
+}
+.app-main-grid {
+  animation: crt-power-on 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+  transform-origin: center;
+}
+.accessibility-mode .app-main-grid {
+  animation: none !important;
+}
+
+/* Heatmap Pulsing Sectors */
+@keyframes pulse-heatmap-green {
+  0% { fill-opacity: 0.35; }
+  50% { fill-opacity: 0.55; }
+  100% { fill-opacity: 0.35; }
+}
+@keyframes pulse-heatmap-yellow {
+  0% { fill-opacity: 0.45; }
+  50% { fill-opacity: 0.65; }
+  100% { fill-opacity: 0.45; }
+}
+@keyframes pulse-heatmap-red {
+  0% { fill-opacity: 0.5; }
+  50% { fill-opacity: 0.85; filter: drop-shadow(0 0 12px var(--neon-red)); }
+  100% { fill-opacity: 0.5; }
+}
+.stadium-map-heatmap .sector-green {
+  animation: pulse-heatmap-green 3s ease-in-out infinite;
+}
+.stadium-map-heatmap .sector-yellow {
+  animation: pulse-heatmap-yellow 2s ease-in-out infinite;
+}
+.stadium-map-heatmap .sector-red {
+  animation: pulse-heatmap-red 1.2s ease-in-out infinite;
+}
+.accessibility-mode .stadium-sector {
+  animation: none !important;
+  filter: none !important;
+}
+
+/* Double-path Glowing Routing Lasers */
+.active-routing-path-glow {
+  fill: none;
+  stroke: var(--neon-green);
+  stroke-dasharray: 6, 6;
+  stroke-width: 10px;
+  stroke-linecap: round;
+  opacity: 0.35;
+  filter: blur(4px);
+  animation: march-ants 6s linear infinite;
+}
+.active-routing-path {
+  fill: none;
+  stroke: #ffffff;
+  stroke-dasharray: 10, 15;
+  stroke-width: 3.5px;
+  stroke-linecap: round;
+  animation: march-ants 2s linear infinite;
+  filter: drop-shadow(0 0 8px var(--neon-green));
+}
+
+/* Terminal log slide-in */
+@keyframes terminal-slide-in {
+  0% { opacity: 0; transform: translateX(-15px); border-left: 3px solid var(--neon-green); }
+  50% { opacity: 0.5; border-left: 3px solid var(--neon-green); }
+  100% { opacity: 1; transform: translateX(0); border-left: 3px solid transparent; }
+}
+.direction-step {
+  animation: terminal-slide-in 0.35s ease-out forwards;
+  border-left: 3px solid transparent;
+  padding-left: 0.5rem;
+}
+
+/* AI recommendations content */
+.predictions-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.25rem;
+}
+.predictions-header-card {
+  padding: 1.25rem;
+}
+.retro-sub-title {
+  font-family: var(--font-display);
+  color: var(--neon-yellow);
+  font-size: 1.3rem;
+  margin-top: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+.rec-intro-text {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}
+
+/* Simulation loader progress */
+.simulation-loading-box {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.loading-animation-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-pixel);
+  font-size: 0.65rem;
+  color: var(--neon-cyan);
+}
+.retro-progress-bar {
+  background: rgba(0, 0, 0, 0.4);
+  border: 2px solid var(--neon-cyan);
+  border-radius: 4px;
+  height: 16px;
+  overflow: hidden;
+  position: relative;
+}
+.retro-progress-bar-fill {
+  background: var(--neon-cyan);
+  height: 100%;
+  width: 0%;
+  box-shadow: 0 0 10px var(--neon-cyan);
+  transition: width 0.1s linear;
+}
+.predictions-output-box {
+  border-color: var(--neon-yellow) !important;
+  box-shadow: 0 0 8px rgba(255, 176, 0, 0.2) !important;
+}
+#predictions-ai-content {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--neon-green);
+}
+#predictions-ai-content h4 {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  color: var(--neon-yellow);
+  margin-bottom: 0.5rem;
+  border-bottom: 1px dashed var(--neon-yellow);
+  padding-bottom: 0.25rem;
+}
+#predictions-ai-content ul {
+  margin-left: 1.25rem;
+  margin-top: 0.5rem;
+  list-style-type: square;
+}
+#predictions-ai-content li {
+  margin-bottom: 0.4rem;
+}
+
+/* Density heat grid */
+.density-telemetry-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.density-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  padding: 0.6rem 1rem;
+  font-size: 0.85rem;
+}
+.density-name {
+  font-weight: bold;
+  width: 140px;
+}
+.density-bar-container {
+  flex-grow: 1;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255,255,255,0.1);
+  height: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+}
+.density-bar-fill {
+  height: 100%;
+  border-radius: 5px;
+}
+.bg-danger-glow {
+  background: var(--neon-red);
+  box-shadow: 0 0 6px var(--neon-red);
+}
+.bg-warning-glow {
+  background: var(--neon-yellow);
+  box-shadow: 0 0 6px var(--neon-yellow);
+}
+.bg-success-glow {
+  background: var(--neon-green);
+  box-shadow: 0 0 6px var(--neon-green);
+}
+.density-val {
+  width: 110px;
+  text-align: right;
+  font-family: var(--font-pixel);
+  font-size: 0.6rem;
+  color: var(--text-secondary);
+}
+
+/* Bezel glare effect */
+.crt-screen-bezel {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(circle at 50% 15%, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0) 60%),
+              radial-gradient(circle at 50% 50%, rgba(0,0,0,0) 70%, rgba(0,0,0,0.45) 100%);
+  z-index: 999997;
+  pointer-events: none;
+  box-shadow: inset 0 0 100px rgba(0,0,0,0.8);
+}
+.accessibility-mode .crt-screen-bezel {
+  display: none !important;
+}
+
+
 

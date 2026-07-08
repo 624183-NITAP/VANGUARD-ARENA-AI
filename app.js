@@ -74,17 +74,24 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- RETRO LIVE EVENT POOL & LOADER ---
   const retroLiveEventsPool = [
     { type: 'match', text: "76' - Foul by Bellingham (England) on Musah near penalty area." },
+    { type: 'weather', text: "WEATHER: Wind gusting 15mph NW. Temperature: 68°F. Retractable canopy stays open." },
     { type: 'alert', text: "Gate B ticket scanner lines dropping. Average wait time now: 3 mins." },
+    { type: 'transit', text: "TRANSIT: MetLife Rail Shuttle reports trains to Secaucus running on 8 min headways." },
+    { type: 'security', text: "SECURITY: Sector 104 volunteers matching crowd diversion directives. Gates clear." },
     { type: 'nav', text: "AI navigation routing recommends Gate B detour for Sectors 103, 104." },
     { type: 'match', text: "79' - Close! Header by Kane (England) hits the crossbar!" },
-    { type: 'system', text: "Thermal sensors in Sector 104 restroom report ambient temp normal (68°F)." },
-    { type: 'alert', text: "Transit shuttle Lot B reports boarding queues increasing. Use trains if heading to NYC." },
+    { type: 'weather', text: "WEATHER: Light drizzle detected at perimeter sensors. Radar indicates clearing in 10m." },
+    { type: 'transit', text: "TRANSIT: Rideshare Lot D queues forming. Estimated wait for pickup is 14 mins." },
+    { type: 'security', text: "SECURITY: Elevated crowd volumes at Concourse A concessions. 2 volunteer units dispatched." },
     { type: 'match', text: "82' - Substitution England: #9 Kane OFF, #18 Watkins ON." },
-    { type: 'system', text: "AI dispatch: 2 volunteer units re-allocated to Gate A exit tunnels." },
+    { type: 'alert', text: "ALERT: Restroom wait times in Sector 104 surge to 15m. Redirecting to Sector 103." },
     { type: 'match', text: "85' - GOAL! USA score! Aaronson slots it in after a counter-attack!" },
+    { type: 'weather', text: "WEATHER: Rain stopped. Temperature: 66°F. Humidity: 72%." },
+    { type: 'transit', text: "TRANSIT: Express Shuttle buses to NYC Port Authority loading at South Lot. No queues." },
+    { type: 'security', text: "SECURITY: Post-match egress routing volunteers deploying to Gates A, B, C, D." },
     { type: 'alert', text: "ALERT: USA leads England 2-1! Sector 105 crowd density rising." },
-    { type: 'system', text: "Concourse concession taco stand reports wait time decrease: 5 mins." },
     { type: 'match', text: "88' - Yellow Card for Aaronson (USA) for excessive celebration." },
+    { type: 'transit', text: "TRANSIT: NJ Transit rail ticketing kiosks at Gate B report zero queue line wait." },
     { type: 'alert', text: "Gate A ticket gate operations recovered. Switch port Cellular WAN #2 stable." },
     { type: 'match', text: "90' - Fourth Official indicates 5 minutes of added time." },
     { type: 'match', text: "90+2' - Corner kick for England. Pressure mounting in USA area." },
@@ -115,8 +122,10 @@ document.addEventListener('DOMContentLoaded', () => {
     container.scrollTop = container.scrollHeight;
     
     // Play retro beep based on type
-    if (type === 'alert') {
+    if (type === 'alert' || type === 'security') {
       playRetroSound('warn');
+    } else if (type === 'transit' || type === 'weather') {
+      playRetroSound('beep');
     } else {
       playRetroSound('boop');
     }
@@ -425,9 +434,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const tabBtnAssistant = document.getElementById('tab-btn-assistant');
   const tabBtnNavigation = document.getElementById('tab-btn-navigation');
   const tabBtnSustainability = document.getElementById('tab-btn-sustainability');
+  const tabBtnPredictions = document.getElementById('tab-btn-predictions');
   const fanTabAssistant = document.getElementById('fan-tab-assistant');
   const fanTabNavigation = document.getElementById('fan-tab-navigation');
   const fanTabSustainability = document.getElementById('fan-tab-sustainability');
+  const fanTabPredictions = document.getElementById('fan-tab-predictions');
+  const btnRunPredictions = document.getElementById('btn-run-predictions');
+  const predictionsLoader = document.getElementById('predictions-loader');
+  const predictionsProgressFill = document.getElementById('prediction-progress-fill');
+  const predictionsOutputContainer = document.getElementById('predictions-output-container');
+  const predictionsAiContent = document.getElementById('predictions-ai-content');
+  const predictionsStatusText = document.getElementById('predictions-status-text');
 
   const chatMessagesLog = document.getElementById('chat-messages-log');
   const chatInput = document.getElementById('chat-input');
@@ -469,7 +486,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function clearRoutePath() {
     const routePath = document.getElementById('active-routing-path');
+    const routePathGlow = document.getElementById('active-routing-path-glow');
     if (routePath) routePath.style.display = 'none';
+    if (routePathGlow) routePathGlow.style.display = 'none';
   }
 
   // --- VIEW SELECTOR TOGGLES ---
@@ -747,7 +766,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const fanTabs = [
     { btn: tabBtnAssistant, content: fanTabAssistant, name: 'assistant' },
     { btn: tabBtnNavigation, content: fanTabNavigation, name: 'navigation' },
-    { btn: tabBtnSustainability, content: fanTabSustainability, name: 'sustainability' }
+    { btn: tabBtnSustainability, content: fanTabSustainability, name: 'sustainability' },
+    { btn: tabBtnPredictions, content: fanTabPredictions, name: 'predictions' }
   ];
 
   fanTabs.forEach(tab => {
@@ -1025,6 +1045,18 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const pathD = `M ${gCoord.x} ${gCoord.y} L ${cx1.toFixed(1)} ${cy1.toFixed(1)} A ${Rc} ${Rc} 0 ${largeArcFlag} ${sweepFlag} ${cx2.toFixed(1)} ${cy2.toFixed(1)} L ${sCoord.x} ${sCoord.y}`;
     
+    // 1. Background glow path
+    let routePathGlow = document.getElementById('active-routing-path-glow');
+    if (!routePathGlow) {
+      routePathGlow = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      routePathGlow.setAttribute('id', 'active-routing-path-glow');
+      routePathGlow.setAttribute('class', 'active-routing-path-glow');
+      stadiumMap.appendChild(routePathGlow);
+    }
+    routePathGlow.setAttribute('d', pathD);
+    routePathGlow.style.display = 'block';
+
+    // 2. Foreground dashed path
     let routePath = document.getElementById('active-routing-path');
     if (!routePath) {
       routePath = document.createElementNS("http://www.w3.org/2000/svg", "path");
@@ -1032,7 +1064,6 @@ document.addEventListener('DOMContentLoaded', () => {
       routePath.setAttribute('class', 'active-routing-path');
       stadiumMap.appendChild(routePath);
     }
-    
     routePath.setAttribute('d', pathD);
     routePath.style.display = 'block';
   }
@@ -1339,5 +1370,78 @@ document.addEventListener('DOMContentLoaded', () => {
     lucide.createIcons();
 
     speakAI(reply.replace(/\*\*|\*/g, ''));
+  }
+
+  // --- GEMINI COGNITIVE MODEL & CROWD PREDICTIONS HUB ---
+  btnRunPredictions.addEventListener('click', async () => {
+    playRetroSound('beep');
+    predictionsLoader.style.display = 'block';
+    predictionsOutputContainer.style.display = 'none';
+    predictionsProgressFill.style.width = '0%';
+    
+    // Animate progress bar simulation
+    let width = 0;
+    const interval = setInterval(() => {
+      width += Math.floor(Math.random() * 15) + 6;
+      if (width >= 100) {
+        width = 100;
+        clearInterval(interval);
+      }
+      predictionsProgressFill.style.width = `${width}%`;
+    }, 80);
+
+    const systemPrompt = `You are the Vanguard Arena AI Cognitive Engine.
+    Compile a stadium operations predictive report for the FIFA World Cup 2026.
+    Use current telemetry conditions to formulate recommendations.
+    Current Stadium Telemetry:
+    - Gate A: heavily congested (22m wait, scanners offline).
+    - Gate B: normal flow (4m wait).
+    - Gate C: moderate (11m wait).
+    - Gate D: moderate (8m wait).
+    - Sector 104 restroom: 15m wait. Sector 102/103 restrooms: 2m wait.
+    - Concession Sector 104: 18m wait. Concession Sector 105: 8m wait.
+    - Match: USA vs England (Score 2-1, 76 mins, crowd density high).
+    - Weather: Wind gusting 15mph, light rain forecast, roof open.
+    
+    Your report must contain:
+    1. **Rerouting Directive**: Clear, actionable rerouting of incoming gate traffic (recommending Gate B/D detours).
+    2. **Optimal Concessions/Facilities**: Points fans towards under-utilized concessions and restrooms (e.g. Sector 102/103 to avoid Sector 104 restroom bottleneck).
+    3. **Crowd Density Predictions**: Predicts restroom, gate, and transit bottleneck flows for the next 30 minutes (post-match egress).
+    
+    Format your output in raw HTML containing ONLY <h4> heading starting with "GenAI Operations Strategy" and a <ul> list containing several <li> items.
+    Do NOT wrap output in markdown blocks like \`\`\`html. Keep it highly tactical, professional, and very concise.`;
+
+    const userPrompt = "Generate real-time crowd forecasts, optimal gates, and concession load predictions.";
+
+    let predictionHtml = "";
+    try {
+      predictionHtml = await queryGemini(systemPrompt, userPrompt);
+    } catch (err) {
+      console.warn("Gemini predictions call failed. Simulating local analytical model.", err);
+      predictionHtml = simulateLocalPredictions();
+    }
+
+    setTimeout(() => {
+      clearInterval(interval);
+      predictionsProgressFill.style.width = '100%';
+      
+      setTimeout(() => {
+        predictionsLoader.style.display = 'none';
+        predictionsOutputContainer.style.display = 'block';
+        predictionsAiContent.innerHTML = predictionHtml;
+        playRetroSound('success');
+        speakAI("AI crowd prediction and gate recommendation completed.");
+        appendLiveEvent('system', "Gemini operational crowd analysis loaded successfully.");
+      }, 150);
+    }, 1000);
+  });
+
+  function simulateLocalPredictions() {
+    return `<h4>GenAI Operations Strategy Recommendation</h4>
+<ul>
+  <li><strong>Optimal Gate Recommendation:</strong> Direct all incoming pedestrian corridors to <strong>Gate B (East)</strong> (4m wait) and <strong>Gate D (West)</strong> (8m wait). Staggered Gate A closures should continue until scanner WAN switch recovery completes.</li>
+  <li><strong>Concessions & Facilities Rerouting:</strong> Alert fans in Sector 104 to proceed to <strong>Sector 102/103 restroom facilities</strong> (2m wait vs 15m wait at 104). Reroute beer demand from Sector 104 stand to Sector 105 Taco & Beer counter (wait differential: 10 mins saved).</li>
+  <li><strong>Egress Surge Forecast (Next 30m):</strong> Post-match egress will peak at <strong>90+5' (approx. 18 minutes from now)</strong>. Heavy crowd density predicted at <strong>Gate B rail transit platform</strong> (+25 min queuing backlog). Recommending bus lot shuttles or NJ Transit staggering alerts.</li>
+</ul>`;
   }
 });
