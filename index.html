@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vanguard Arena AI - FIFA World Cup 2026 Operations & Concierge</title>
+  <!-- Google Fonts: Outfit & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Lucide Icons via ESM (to render clean modern vector icons) -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Background Ambient Glows -->
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+  <div class="bg-glow bg-glow-3"></div>
+
+  <!-- Header Section -->
+  <header class="app-header">
+    <div class="header-logo-container">
+      <div class="header-logo-badge">FIFA 2026</div>
+      <h1 class="header-title">VANGUARD <span class="accent-text">ARENA AI</span></h1>
+    </div>
+    
+    <!-- Match Info Ticker -->
+    <div class="match-ticker">
+      <span class="ticker-live-dot"></span>
+      <span class="ticker-label">LIVE</span>
+      <span class="ticker-match">USA vs ENGLAND (Group Stage)</span>
+      <span class="ticker-score">1 - 1</span>
+      <span class="ticker-time">74'</span>
+      <span class="ticker-stadium">MetLife Stadium, NJ</span>
+      <span class="ticker-fans"><i data-lucide="users"></i> 82,300</span>
+    </div>
+
+    <!-- Mode Selector Toggles -->
+    <div class="view-switch-container">
+      <button class="view-switch-btn active" id="btn-staff-view">
+        <i data-lucide="sliders"></i> Operations Control
+      </button>
+      <button class="view-switch-btn" id="btn-fan-view">
+        <i data-lucide="sparkles"></i> Fan Concierge Hub
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Grid Wrapper -->
+  <main class="app-main-grid" id="main-content">
+    
+    <!-- ==================== LEFT PANEL: STADIUM MAP VIEW ==================== -->
+    <section class="panel-card map-panel">
+      <div class="panel-header">
+        <div class="panel-title-group">
+          <i data-lucide="map-pin" class="panel-icon icon-cyan"></i>
+          <div>
+            <h2 class="panel-title">Interactive Arena Map</h2>
+            <p class="panel-subtitle">Real-time overlays and facility mapping</p>
+          </div>
+        </div>
+        <!-- Map Controls -->
+        <div class="map-controls">
+          <button class="map-control-btn active" id="map-btn-heatmap">
+            <span class="dot-indicator bg-success"></span> Heatmap
+          </button>
+          <button class="map-control-btn" id="map-btn-accessibility">
+            <span class="dot-indicator bg-info"></span> Accessible Paths
+          </button>
+          <button class="map-control-btn" id="map-btn-facilities">
+            <span class="dot-indicator bg-purple"></span> Restrooms/Concessions
+          </button>
+        </div>
+      </div>
+
+      <div class="panel-body map-body-container">
+        <!-- SVG Stadium Map -->
+        <div class="stadium-svg-wrapper">
+          <svg viewBox="0 0 800 600" class="stadium-svg" id="stadium-map">
+            <defs>
+              <radialGradient id="pitch-glow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#10b981" stop-opacity="0.2"/>
+                <stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
+              </radialGradient>
+              <filter id="neon-glow-cyan">
+                <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                <feMerge>
+                  <feMergeNode in="coloredBlur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+            </defs>
+
+            <!-- Outer Stadium Boundary -->
+            <rect x="20" y="20" width="760" height="560" rx="280" class="stadium-outer-ring" />
+            <rect x="50" y="50" width="700" height="500" rx="250" class="stadium-mid-ring" />
+            <rect x="90" y="90" width="620" height="420" rx="210" class="stadium-inner-ring" />
+
+            <!-- Pitch/Field -->
+            <rect x="250" y="200" width="300" height="200" rx="10" class="stadium-pitch" />
+            <circle cx="400" cy="300" r="45" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2" />
+            <line x1="400" y1="200" x2="400" y2="400" stroke="rgba(255,255,255,0.4)" stroke-width="2" />
+            <!-- Goal Areas -->
+            <rect x="250" y="260" width="25" height="80" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2" />
+            <rect x="525" y="260" width="25" height="80" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2" />
+
+            <!-- Seating Sectors / Zones -->
+            <!-- Sector 101 - North East -->
+            <path d="M 450,80 L 600,100 L 530,220 L 440,190 Z" class="stadium-sector sector-green" id="sector-101" data-name="Sector 101" data-capacity="94%" data-wait="3m" />
+            <!-- Sector 102 - East Outer -->
+            <path d="M 605,105 L 720,200 L 600,280 L 535,225 Z" class="stadium-sector sector-yellow" id="sector-102" data-name="Sector 102" data-capacity="88%" data-wait="12m" />
+            <!-- Sector 103 - South East -->
+            <path d="M 600,500 L 450,520 L 440,410 L 530,380 Z" class="stadium-sector sector-green" id="sector-103" data-name="Sector 103" data-capacity="91%" data-wait="5m" />
+            <!-- Sector 104 - South Outer -->
+            <path d="M 720,400 L 605,495 L 535,375 L 600,320 Z" class="stadium-sector sector-red" id="sector-104" data-name="Sector 104" data-capacity="98%" data-wait="24m" />
+            <!-- Sector 105 - South West -->
+            <path d="M 350,520 L 200,500 L 270,380 L 360,410 Z" class="stadium-sector sector-green" id="sector-105" data-name="Sector 105" data-capacity="85%" data-wait="4m" />
+            <!-- Sector 106 - West Outer -->
+            <path d="M 195,495 L 80,400 L 200,320 L 265,375 Z" class="stadium-sector sector-yellow" id="sector-106" data-name="Sector 106" data-capacity="78%" data-wait="14m" />
+            <!-- Sector 107 - North West -->
+            <path d="M 200,100 L 350,80 L 360,190 L 270,220 Z" class="stadium-sector sector-green" id="sector-107" data-name="Sector 107" data-capacity="92%" data-wait="6m" />
+            <!-- Sector 108 - West Inner -->
+            <path d="M 80,200 L 195,105 L 265,225 L 200,280 Z" class="stadium-sector sector-yellow" id="sector-108" data-name="Sector 108" data-capacity="81%" data-wait="11m" />
+
+            <!-- Accessibility Ramps (Dotted Neon Paths - toggled by class) -->
+            <path d="M 100,300 C 120,280 200,280 220,300" class="access-path" />
+            <path d="M 700,300 C 680,280 600,280 580,300" class="access-path" />
+            <path d="M 400,60 C 400,100 400,160 400,180" class="access-path" />
+            <path d="M 400,540 C 400,500 400,440 400,420" class="access-path" />
+
+            <!-- Entrance Gates -->
+            <!-- Gate A (North) -->
+            <g class="map-gate-node" id="gate-a" data-name="Gate A (North)" data-wait="22 min" data-level="high">
+              <circle cx="400" cy="50" r="14" class="gate-circle pulse-red" />
+              <text x="400" y="54" text-anchor="middle" class="gate-label">A</text>
+            </g>
+            <!-- Gate B (East) -->
+            <g class="map-gate-node" id="gate-b" data-name="Gate B (East)" data-wait="4 min" data-level="low">
+              <circle cx="730" cy="300" r="14" class="gate-circle pulse-green" />
+              <text x="730" y="304" text-anchor="middle" class="gate-label">B</text>
+            </g>
+            <!-- Gate C (South) -->
+            <g class="map-gate-node" id="gate-c" data-name="Gate C (South)" data-wait="11 min" data-level="mid">
+              <circle cx="400" cy="550" r="14" class="gate-circle pulse-yellow" />
+              <text x="400" y="554" text-anchor="middle" class="gate-label">C</text>
+            </g>
+            <!-- Gate D (West) -->
+            <g class="map-gate-node" id="gate-d" data-name="Gate D (West)" data-wait="8 min" data-level="mid">
+              <circle cx="70" cy="300" r="14" class="gate-circle pulse-yellow" />
+              <text x="70" y="304" text-anchor="middle" class="gate-label">D</text>
+            </g>
+
+            <!-- Facility Nodes (Restrooms, Concessions, Transit) -->
+            <g class="facility-node" id="fac-restroom-1" data-name="Concourse A Restrooms" data-status="Crowded (15m wait)">
+              <circle cx="300" cy="140" r="8" class="facility-dot dot-restroom" />
+            </g>
+            <g class="facility-node" id="fac-restroom-2" data-name="Concourse C Restrooms" data-status="Normal (2m wait)">
+              <circle cx="500" cy="460" r="8" class="facility-dot dot-restroom" />
+            </g>
+            <g class="facility-node" id="fac-food-1" data-name="Budweiser Beer Concession" data-status="High (18m queue)">
+              <circle cx="500" cy="140" r="8" class="facility-dot dot-food" />
+            </g>
+            <g class="facility-node" id="fac-food-2" data-name="Taco Arena Concession" data-status="Medium (8m queue)">
+              <circle cx="300" cy="460" r="8" class="facility-dot dot-food" />
+            </g>
+            <!-- Transit Hubs -->
+            <g class="facility-node" id="fac-train" data-name="MetLife Rail Transit Station" data-status="Heavy Boarding Queue">
+              <circle cx="750" cy="100" r="10" class="facility-dot dot-transit" />
+            </g>
+            <g class="facility-node" id="fac-bus" data-name="Stadium Shuttle Terminal" data-status="Regular Service">
+              <circle cx="50" cy="500" r="10" class="facility-dot dot-transit" />
+            </g>
+          </svg>
+
+          <!-- SVG Hover Detail Card -->
+          <div class="map-tooltip" id="map-tooltip">
+            <h4 class="tooltip-title">Sector 104</h4>
+            <div class="tooltip-detail"><span class="label">Capacity:</span> <span class="value" id="tooltip-capacity">98%</span></div>
+            <div class="tooltip-detail"><span class="label">Est. Queue:</span> <span class="value" id="tooltip-wait">24m</span></div>
+          </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="map-legend">
+          <div class="legend-item"><span class="legend-color-box bg-success"></span> Normal (Low Delay)</div>
+          <div class="legend-item"><span class="legend-color-box bg-warning"></span> Moderate Load</div>
+          <div class="legend-item"><span class="legend-color-box bg-danger"></span> High Density / Delay</div>
+          <div class="legend-item"><span class="legend-color-box bg-info-border"></span> Accessibility Route</div>
+          <div class="legend-item"><span class="legend-color-box bg-purple"></span> Facility Node</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== RIGHT PANEL (STAFF OPERATIONS VIEW) ==================== -->
+    <section class="panel-card right-panel" id="staff-view-panel">
+      
+      <!-- Operational Telemetry Indicators -->
+      <div class="telemetry-grid">
+        <div class="telemetry-card card-neon-red">
+          <div class="telemetry-header">
+            <span class="telemetry-label">GATE A QUEUE</span>
+            <i data-lucide="trending-up" class="text-danger"></i>
+          </div>
+          <div class="telemetry-val">22 <span class="telemetry-unit">mins</span></div>
+          <p class="telemetry-desc">Critical load. Reroute via Gate B.</p>
+        </div>
+        <div class="telemetry-card card-neon-green">
+          <div class="telemetry-header">
+            <span class="telemetry-label">GATE B QUEUE</span>
+            <i data-lucide="trending-down" class="text-success"></i>
+          </div>
+          <div class="telemetry-val">4 <span class="telemetry-unit">mins</span></div>
+          <p class="telemetry-desc">Optimal capacity. Staff ready.</p>
+        </div>
+        <div class="telemetry-card card-neon-purple">
+          <div class="telemetry-header">
+            <span class="telemetry-label">ACTIVE SECURITY</span>
+            <i data-lucide="shield" class="text-purple"></i>
+          </div>
+          <div class="telemetry-val">12 <span class="telemetry-unit">agents</span></div>
+          <p class="telemetry-desc">Deployments on standby.</p>
+        </div>
+      </div>
+
+      <!-- Live Incident Dispatch Terminal -->
+      <div class="panel-header section-divider">
+        <div class="panel-title-group">
+          <i data-lucide="alert-octagon" class="panel-icon icon-red"></i>
+          <div>
+            <h2 class="panel-title">AI Incident Dispatch Terminal</h2>
+            <p class="panel-subtitle">Generative operational decision support</p>
+          </div>
+        </div>
+        <button class="glass-btn btn-sm" id="btn-trigger-incident">
+          <i data-lucide="plus-circle"></i> Trigger Simulated Incident
+        </button>
+      </div>
+
+      <div class="panel-body incident-body">
+        <div class="incident-list" id="incident-container">
+          <!-- Preset incidents -->
+          <div class="incident-row priority-high active-row" id="inc-1">
+            <div class="incident-status-bar"></div>
+            <div class="incident-details">
+              <div class="incident-meta">
+                <span class="badge badge-danger">CRITICAL</span>
+                <span class="incident-time">14:18 (4m ago)</span>
+                <span class="incident-loc"><i data-lucide="map-pin"></i> Gate A Entry</span>
+              </div>
+              <h3 class="incident-title">Ticket Turnstile Connectivity Drop</h3>
+              <p class="incident-desc">3 ticket scanners offline. High fan backup at outer turnstile line A2.</p>
+            </div>
+            <button class="btn-incident-solve active-solve" data-incident-id="1">
+              Run AI Mitigate <i data-lucide="zap"></i>
+            </button>
+          </div>
+
+          <div class="incident-row priority-medium" id="inc-2">
+            <div class="incident-status-bar"></div>
+            <div class="incident-details">
+              <div class="incident-meta">
+                <span class="badge badge-warning">MEDIUM</span>
+                <span class="incident-time">14:12 (10m ago)</span>
+                <span class="incident-loc"><i data-lucide="map-pin"></i> Sector 104 Concourse</span>
+              </div>
+              <h3 class="incident-title">Restroom Queue Surge</h3>
+              <p class="incident-desc">Concourse restroom wait times exceeds 20 minutes. Crowd spillover blocking ramp.</p>
+            </div>
+            <button class="btn-incident-solve" data-incident-id="2">
+              Run AI Mitigate <i data-lucide="zap"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- AI Real-Time Decision Support Console -->
+        <div class="ai-support-console glass-panel-inner">
+          <div class="console-header">
+            <div class="console-tag"><i data-lucide="cpu"></i> GENAI DECISION MODULE</div>
+            <span class="console-status" id="console-status-text">Awaiting prompt...</span>
+          </div>
+          <div class="console-body" id="console-log">
+            <div class="console-placeholder-msg">
+              Select <strong>"Run AI Mitigate"</strong> on any incident above to generate real-time containment procedures and volunteer allocation maps via Generative AI.
+            </div>
+          </div>
+          <!-- Voice Dispatch Output Button -->
+          <div class="console-footer" id="console-footer" style="display: none;">
+            <button class="action-btn text-speech-btn" id="btn-speak-mitigation">
+              <i data-lucide="volume-2"></i> Narrate Resolution (TTS)
+            </button>
+            <button class="action-btn dispatch-btn" id="btn-dispatch-action">
+              <i data-lucide="send"></i> Dispatch to Volunteer App
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== RIGHT PANEL (FAN HUB VIEW - HIDDEN BY DEFAULT) ==================== -->
+    <section class="panel-card right-panel hidden-panel" id="fan-view-panel">
+      <!-- Fan Quick Metric Cards -->
+      <div class="fan-quick-stats">
+        <div class="fan-stat-card card-purple-tint">
+          <span class="fan-stat-label"><i data-lucide="ticket"></i> Ticket Seats</span>
+          <span class="fan-stat-val">Sec 104, Row 12</span>
+        </div>
+        <div class="fan-stat-card card-cyan-tint">
+          <span class="fan-stat-label"><i data-lucide="compass"></i> Recommended Gate</span>
+          <span class="fan-stat-val">Gate B (Fastest)</span>
+        </div>
+        <div class="fan-stat-card card-green-tint" id="green-score-stat">
+          <span class="fan-stat-label"><i data-lucide="leaf"></i> Green Play Score</span>
+          <span class="fan-stat-val">120 pts</span>
+        </div>
+      </div>
+
+      <!-- Tab Layout for Fan Views -->
+      <div class="fan-tabs">
+        <button class="fan-tab-btn active" id="tab-btn-assistant">
+          <i data-lucide="message-square-code"></i> AI Concierge Assistant
+        </button>
+        <button class="fan-tab-btn" id="tab-btn-navigation">
+          <i data-lucide="navigation"></i> Wayfinder & Queues
+        </button>
+        <button class="fan-tab-btn" id="tab-btn-sustainability">
+          <i data-lucide="leaf"></i> Green Play Tracker
+        </button>
+      </div>
+
+      <!-- FAN PANEL TABS CONTENT -->
+      
+      <!-- SUB-TAB 1: AI Concierge Chat -->
+      <div class="fan-tab-content active-tab-content" id="fan-tab-assistant">
+        <!-- Multilingual Selectors -->
+        <div class="language-bar">
+          <span class="lang-title">Choose Language:</span>
+          <div class="lang-buttons">
+            <button class="lang-btn active" data-lang="en">EN</button>
+            <button class="lang-btn" data-lang="es">ES</button>
+            <button class="lang-btn" data-lang="pt">PT</button>
+            <button class="lang-btn" data-lang="de">DE</button>
+            <button class="lang-btn" data-lang="fr">FR</button>
+            <button class="lang-btn" data-lang="it">IT</button>
+            <button class="lang-btn" data-lang="ar">AR</button>
+            <button class="lang-btn" data-lang="ja">JA</button>
+            <button class="lang-btn" data-lang="zh">ZH</button>
+            <button class="lang-btn" data-lang="hi">HI</button>
+            <button class="lang-btn" data-lang="ko">KO</button>
+          </div>
+        </div>
+
+        <!-- Chat Log -->
+        <div class="chat-container">
+          <div class="chat-messages" id="chat-messages-log">
+            <div class="chat-bubble ai-bubble">
+              <div class="chat-bubble-avatar"><i data-lucide="cpu"></i></div>
+              <div class="chat-bubble-text">
+                Welcome to MetLife Stadium for the FIFA World Cup 2026! I am your GenAI Tournament Assistant. How can I help you find your seat, manage transport, check gate delays, or track accessibility routes today?
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Suggestion Chips -->
+          <div class="quick-suggestion-chips" id="quick-chips">
+            <button class="chip-btn" data-query="How do I get to Sector 104 with wheelchair access?">♿ Sector 104 Access</button>
+            <button class="chip-btn" data-query="Which gate has the shortest queue right now?">⏱️ Shortest Gate Lines</button>
+            <button class="chip-btn" data-query="Where is the closest transit center to Gate C?">🚇 Transit Station</button>
+            <button class="chip-btn" data-query="Are there dynamic shuttle maps for traveling to New York City?">🚌 Bus Shuttles</button>
+          </div>
+
+          <!-- Chat Input -->
+          <div class="chat-input-area">
+            <button class="mic-toggle-btn" id="btn-chat-mic" title="Voice Input (STT)">
+              <i data-lucide="mic"></i>
+            </button>
+            <input type="text" id="chat-input" placeholder="Type a message or ask stadium questions..." autocomplete="off">
+            <button class="send-message-btn" id="btn-chat-send">
+              <i data-lucide="send"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-TAB 2: Seat Wayfinder & Queues -->
+      <div class="fan-tab-content" id="fan-tab-navigation">
+        <div class="navigation-card-body">
+          <h3 class="card-subtitle-bold"><i data-lucide="navigation"></i> Seat Wayfinding Routing</h3>
+          <div class="route-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="input-gate">Entry Gate</label>
+                <select id="input-gate">
+                  <option value="Gate A">Gate A (North)</option>
+                  <option value="Gate B" selected>Gate B (East)</option>
+                  <option value="Gate C">Gate C (South)</option>
+                  <option value="Gate D">Gate D (West)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="input-sector">Seat Sector</label>
+                <select id="input-sector">
+                  <option value="101">Sector 101</option>
+                  <option value="102">Sector 102</option>
+                  <option value="103">Sector 103</option>
+                  <option value="104" selected>Sector 104</option>
+                  <option value="105">Sector 105</option>
+                  <option value="106">Sector 106</option>
+                  <option value="107">Sector 107</option>
+                  <option value="108">Sector 108</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group-checkbox">
+              <input type="checkbox" id="checkbox-wheelchair">
+              <label for="checkbox-wheelchair"><i data-lucide="accessibility"></i> Require Accessible / Step-Free Ramps</label>
+            </div>
+            <button class="action-submit-btn" id="btn-calculate-route">
+              Generate AI Route Directions <i data-lucide="corner-down-right"></i>
+            </button>
+          </div>
+
+          <!-- Dynamic Directions Output -->
+          <div class="directions-output glass-panel-inner" id="directions-output-box" style="display: none;">
+            <div class="directions-meta">
+              <span class="route-badge"><i data-lucide="clock"></i> 6 min walk</span>
+              <span class="route-badge badge-blue"><i data-lucide="footprints"></i> 420 meters</span>
+            </div>
+            <ul class="direction-steps" id="directions-steps-list">
+              <!-- Dynamically populated -->
+            </ul>
+          </div>
+
+          <!-- Telemetry Restroom & Concession Queue Info -->
+          <h3 class="card-subtitle-bold section-divider"><i data-lucide="clock"></i> Real-time Queue Estimation</h3>
+          <div class="facility-telemetry-list">
+            <div class="facility-card">
+              <div class="facility-main">
+                <span class="fac-icon bg-purple-glow"><i data-lucide="armchair"></i></span>
+                <div class="fac-info">
+                  <h4>Gate A Tickets Queue</h4>
+                  <p>Congested queue backup</p>
+                </div>
+              </div>
+              <span class="badge badge-danger">22m Wait</span>
+            </div>
+            <div class="facility-card">
+              <div class="facility-main">
+                <span class="fac-icon bg-cyan-glow"><i data-lucide="cup-straw"></i></span>
+                <div class="fac-info">
+                  <h4>Concourse 104 Hotdog & Beers</h4>
+                  <p>Peak half-time demand peak</p>
+                </div>
+              </div>
+              <span class="badge badge-warning">18m Wait</span>
+            </div>
+            <div class="facility-card">
+              <div class="facility-main">
+                <span class="fac-icon bg-green-glow"><i data-lucide="footprints"></i></span>
+                <div class="fac-info">
+                  <h4>Concourse 102 Bathrooms</h4>
+                  <p>Moderate queue speed</p>
+                </div>
+              </div>
+              <span class="badge badge-success">4m Wait</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-TAB 3: Green Play Sustainability Tracker -->
+      <div class="fan-tab-content" id="fan-tab-sustainability">
+        <div class="sustainability-body">
+          <div class="eco-status-box glass-panel-inner">
+            <div class="eco-radial-progress">
+              <div class="eco-circle-value">120</div>
+              <div class="eco-circle-sub">ECO POINTS</div>
+            </div>
+            <div class="eco-stat-details">
+              <h3>Carbon Saver Tier: Gold</h3>
+              <p>You have prevented approximately <strong>3.4 kg</strong> of CO₂ emission compared to driving a standard gas SUV!</p>
+              <div class="eco-trophies">
+                <span class="badge badge-success" title="Used Train Transit"><i data-lucide="train"></i> Eco Transit Badge</span>
+                <span class="badge badge-blue" title="Completed quiz"><i data-lucide="award"></i> Fan Trivia Champion</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Calculator Form -->
+          <h3 class="card-subtitle-bold section-divider"><i data-lucide="calculator"></i> Fan Transit Calculator</h3>
+          <div class="transit-calculator-form">
+            <label for="select-transit-mode">How did you travel to the Stadium?</label>
+            <select id="select-transit-mode">
+              <option value="train" data-points="100" data-co2="0.2">🚆 Electric Commuter Train (Best Choice) (+100 pts)</option>
+              <option value="bus" data-points="60" data-co2="0.6">🚌 Event Shuttle Bus (+60 pts)</option>
+              <option value="carpool" data-points="30" data-co2="1.2">🚗 Rideshare / Carpool (+30 pts)</option>
+              <option value="solo" data-points="5" data-co2="2.4">🚘 Single-occupancy Gas SUV (+5 pts)</option>
+            </select>
+            <button class="action-submit-btn" id="btn-calculate-eco">
+              Submit Transit Log & Earn Points <i data-lucide="check"></i>
+            </button>
+          </div>
+
+          <!-- GenAI Eco Tip Section -->
+          <div class="ai-eco-tips glass-panel-inner">
+            <div class="tips-header">
+              <i data-lucide="sparkles" class="icon-green"></i>
+              <span>DYNAMIC ECO-TIP BY GENAI</span>
+            </div>
+            <div class="tips-content" id="eco-tip-box">
+              "By choosing the rail network from Manhattan/Secaucus Junction, you minimized parking logistics and queue emissions. Remember, MetLife Stadium offers free water refills in Concourse A & C when you bring a reusable stadium-approved clear bottle!"
+            </div>
+            <button class="glass-btn btn-sm" id="btn-new-eco-tip">
+              Generate New Tip <i data-lucide="refresh-cw"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Global Accessibility Floating Action Button -->
+  <button class="accessibility-float" id="btn-accessibility-mode" title="Toggle Accessibility Features">
+    <i data-lucide="accessibility"></i> Accessibility Mode
+  </button>
+
+  <!-- Floating AI Chatbot Toggle Button -->
+  <button class="chatbot-toggle-float" id="btn-chatbot-toggle" title="Open AI Assistant">
+    <i data-lucide="sparkles"></i> AI Concierge
+  </button>
+
+  <!-- Floating AI Chatbot Window -->
+  <div class="chatbot-window-float" id="chatbot-window" style="display: none;">
+    <div class="chatbot-window-header">
+      <div class="chatbot-header-title">
+        <i data-lucide="cpu" class="icon-purple"></i>
+        <span>Vanguard AI Concierge</span>
+        <span class="online-indicator"></span>
+      </div>
+      <button class="chatbot-close-btn" id="btn-chatbot-close">
+        <i data-lucide="x"></i>
+      </button>
+    </div>
+    
+    <!-- Floating Language Bar -->
+    <div class="language-bar-float">
+      <button class="lang-btn-float active" data-lang="en">EN</button>
+      <button class="lang-btn-float" data-lang="es">ES</button>
+      <button class="lang-btn-float" data-lang="pt">PT</button>
+      <button class="lang-btn-float" data-lang="de">DE</button>
+      <button class="lang-btn-float" data-lang="fr">FR</button>
+      <button class="lang-btn-float" data-lang="it">IT</button>
+      <button class="lang-btn-float" data-lang="ar">AR</button>
+      <button class="lang-btn-float" data-lang="ja">JA</button>
+      <button class="lang-btn-float" data-lang="zh">ZH</button>
+      <button class="lang-btn-float" data-lang="hi">HI</button>
+      <button class="lang-btn-float" data-lang="ko">KO</button>
+    </div>
+    
+    <!-- Floating Messages Log -->
+    <div class="chatbot-messages-float" id="chatbot-messages-float-log">
+      <div class="chat-bubble ai-bubble">
+        <div class="chat-bubble-avatar"><i data-lucide="cpu"></i></div>
+        <div class="chat-bubble-text">
+          Welcome! I am connected to Gemini 1.5 Flash. Ask me about seats, restrooms, concessions, transit, or security.
+        </div>
+      </div>
+    </div>
+    
+    <!-- Floating Input Area -->
+    <div class="chatbot-input-area-float">
+      <input type="text" id="chatbot-input-float" placeholder="Ask Vanguard AI..." autocomplete="off">
+      <button class="chatbot-send-btn-float" id="btn-chatbot-send-float">
+        <i data-lucide="send"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Script Imports -->
+  <script src="app.js"></script>
+</body>
+</html>
