@@ -129,7 +129,122 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       playRetroSound('boop');
     }
+
+    // Trigger sliding toast alerts for high-priority logs
+    if (type === 'alert') {
+      showToast("System Alert", text, "warning");
+    } else if (type === 'security') {
+      showToast("Security Dispatch", text, "alert");
+    } else if (type === 'transit') {
+      showToast("Transit Dispatch", text, "system");
+    } else if (type === 'weather') {
+      showToast("Environmental Update", text, "system");
+    }
   }
+
+  // --- CYBER TOAST NOTIFICATION HUB ---
+  function showToast(title, text, type = 'system') {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+    
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    
+    let iconName = 'info';
+    if (type === 'alert') iconName = 'alert-triangle';
+    if (type === 'warning') iconName = 'alert-circle';
+    if (type === 'system') iconName = 'shield-check';
+    
+    toast.innerHTML = `
+      <div class="toast-icon"><i data-lucide="${iconName}"></i></div>
+      <div class="toast-body">
+        <strong class="toast-title">${title}</strong>
+        <div class="toast-text">${text}</div>
+      </div>
+    `;
+    
+    container.appendChild(toast);
+    lucide.createIcons();
+    
+    // Auto remove animation
+    setTimeout(() => {
+      toast.style.animation = 'toast-fade-out 0.3s forwards';
+      setTimeout(() => {
+        toast.remove();
+      }, 300);
+    }, 4500);
+  }
+
+  // --- PRODUCTION TELEMETRY HUB ---
+  function initAdvancedTelemetryHub() {
+    // 1. Dynamic Heatmap Opacity Breathing Loop
+    setInterval(() => {
+      const isHeatmapActive = document.getElementById('stadium-map').classList.contains('stadium-map-heatmap');
+      if (!isHeatmapActive) return;
+      
+      const sectors = document.querySelectorAll('.stadium-sector');
+      sectors.forEach(sec => {
+        let baseOpacity = parseFloat(sec.getAttribute('fill-opacity') || '0.55');
+        let delta = (Math.random() - 0.5) * 0.08;
+        let newOpacity = Math.max(0.35, Math.min(0.85, baseOpacity + delta));
+        sec.style.fillOpacity = newOpacity;
+      });
+    }, 1200);
+
+    // 2. Health Bar Fluctuations
+    const healthAI = document.getElementById('health-ai');
+    const healthIoT = document.getElementById('health-iot');
+    const healthCCTV = document.getElementById('health-cctv');
+    const healthWeather = document.getElementById('health-weather');
+    const healthNetwork = document.getElementById('health-network');
+    
+    setInterval(() => {
+      // AI Confidence
+      const aiConf = (99.0 + Math.random() * 0.9).toFixed(2);
+      if (healthAI) {
+        healthAI.innerHTML = `<span class="pulse-dot"></span> ${aiConf}% NOMINAL`;
+      }
+      
+      // IoT count
+      const iotCount = 412 - Math.floor(Math.random() * 3);
+      if (healthIoT) {
+        healthIoT.innerHTML = `<span class="pulse-dot"></span> ACTIVE (${iotCount}/412)`;
+      }
+      
+      // CCTV Feed
+      const cctvCount = 64 - Math.floor(Math.random() * 2);
+      if (healthCCTV) {
+        if (cctvCount < 64) {
+          healthCCTV.className = "health-status status-degraded";
+          healthCCTV.innerHTML = `<span class="pulse-dot"></span> DEGRADED (${cctvCount}/64)`;
+        } else {
+          healthCCTV.className = "health-status status-nominal";
+          healthCCTV.innerHTML = `<span class="pulse-dot"></span> ONLINE (64/64)`;
+        }
+      }
+      
+      // Weather Station Temp
+      const temp = 66 + Math.floor(Math.random() * 4);
+      if (healthWeather) {
+        healthWeather.innerHTML = `<span class="pulse-dot"></span> OPEN ROOF (${temp}°F)`;
+      }
+      
+      // Latency
+      const latency = 8 + Math.floor(Math.random() * 12);
+      if (healthNetwork) {
+        if (latency > 15) {
+          healthNetwork.className = "health-status status-degraded";
+          healthNetwork.innerHTML = `<span class="pulse-dot"></span> DEGRADED (5G / ${latency}ms)`;
+        } else {
+          healthNetwork.className = "health-status status-nominal";
+          healthNetwork.innerHTML = `<span class="pulse-dot"></span> STABLE (5G / ${latency}ms)`;
+        }
+      }
+    }, 4000);
+  }
+
+  // Initialize Hub
+  initAdvancedTelemetryHub();
 
   // --- GEMINI API INTEGRATION ---
   let GEMINI_API_KEY = localStorage.getItem('GEMINI_API_KEY') || "";
@@ -487,8 +602,10 @@ document.addEventListener('DOMContentLoaded', () => {
   function clearRoutePath() {
     const routePath = document.getElementById('active-routing-path');
     const routePathGlow = document.getElementById('active-routing-path-glow');
+    const routeTracker = document.getElementById('active-routing-tracker');
     if (routePath) routePath.style.display = 'none';
     if (routePathGlow) routePathGlow.style.display = 'none';
+    if (routeTracker) routeTracker.style.display = 'none';
   }
 
   // --- VIEW SELECTOR TOGGLES ---
@@ -806,8 +923,18 @@ document.addEventListener('DOMContentLoaded', () => {
   function appendChatBubble(sender, text) {
     const bubble = document.createElement('div');
     bubble.className = `chat-bubble ${sender}-bubble`;
+    
+    let confidenceHtml = "";
+    if (sender === 'ai') {
+      const score = (98.0 + Math.random() * 1.9).toFixed(1);
+      confidenceHtml = `<div class="ai-confidence-badge">CONF: ${score}%</div>`;
+    }
+    
     bubble.innerHTML = `
-      <div class="chat-bubble-avatar"><i data-lucide="${sender === 'ai' ? 'cpu' : 'user'}"></i></div>
+      <div class="chat-bubble-avatar">
+        <i data-lucide="${sender === 'ai' ? 'cpu' : 'user'}"></i>
+        ${confidenceHtml}
+      </div>
       <div class="chat-bubble-text">${text}</div>
     `;
     chatMessagesLog.appendChild(bubble);
@@ -849,7 +976,12 @@ document.addEventListener('DOMContentLoaded', () => {
     typingBubble.className = `chat-bubble ai-bubble typing-bubble`;
     typingBubble.innerHTML = `
       <div class="chat-bubble-avatar"><i data-lucide="cpu"></i></div>
-      <div class="chat-bubble-text">${chatbotLocales[currentLanguage].typing}</div>
+      <div class="chat-bubble-text">
+        <div class="ai-spinner-container">
+          <span class="ai-spinner-icon"><i data-lucide="refresh-cw"></i></span>
+          <span>[AI COGNITIVE CORE ANALYZING USER QUERY...]</span>
+        </div>
+      </div>
     `;
     chatMessagesLog.appendChild(typingBubble);
     chatMessagesLog.scrollTop = chatMessagesLog.scrollHeight;
@@ -1066,6 +1198,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     routePath.setAttribute('d', pathD);
     routePath.style.display = 'block';
+
+    // 3. Animated tracking indicator dot
+    let routeTracker = document.getElementById('active-routing-tracker');
+    if (!routeTracker) {
+      routeTracker = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      routeTracker.setAttribute('id', 'active-routing-tracker');
+      routeTracker.setAttribute('r', '6');
+      routeTracker.setAttribute('fill', '#ffffff');
+      routeTracker.setAttribute('style', 'filter: drop-shadow(0 0 5px var(--neon-green));');
+      
+      const animateMotion = document.createElementNS("http://www.w3.org/2000/svg", "animateMotion");
+      animateMotion.setAttribute('id', 'active-routing-tracker-animation');
+      animateMotion.setAttribute('dur', '4s');
+      animateMotion.setAttribute('repeatCount', 'indefinite');
+      routeTracker.appendChild(animateMotion);
+      
+      stadiumMap.appendChild(routeTracker);
+    }
+    const anim = document.getElementById('active-routing-tracker-animation');
+    if (anim) {
+      anim.setAttribute('path', pathD);
+    }
+    routeTracker.style.display = 'block';
   }
 
   // --- SEAT WAYFINDING ROUTING ALGORITHM ---
@@ -1325,7 +1480,12 @@ document.addEventListener('DOMContentLoaded', () => {
     typingBubble.className = 'chat-bubble ai-bubble typing-bubble';
     typingBubble.innerHTML = `
       <div class="chat-bubble-avatar"><i data-lucide="cpu"></i></div>
-      <div class="chat-bubble-text">${chatbotLocales[currentLanguage].typing}</div>
+      <div class="chat-bubble-text">
+        <div class="ai-spinner-container">
+          <span class="ai-spinner-icon"><i data-lucide="refresh-cw"></i></span>
+          <span>[AI COGNITIVE CORE ANALYZING USER QUERY...]</span>
+        </div>
+      </div>
     `;
     chatbotMessagesFloatLog.appendChild(typingBubble);
     chatbotMessagesFloatLog.scrollTop = chatbotMessagesFloatLog.scrollHeight;
@@ -1359,10 +1519,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     typingBubble.remove();
 
+    const score = (98.0 + Math.random() * 1.9).toFixed(1);
     const aiBubble = document.createElement('div');
     aiBubble.className = 'chat-bubble ai-bubble';
     aiBubble.innerHTML = `
-      <div class="chat-bubble-avatar"><i data-lucide="cpu"></i></div>
+      <div class="chat-bubble-avatar">
+        <i data-lucide="cpu"></i>
+        <div class="ai-confidence-badge">CONF: ${score}%</div>
+      </div>
       <div class="chat-bubble-text">${reply}</div>
     `;
     chatbotMessagesFloatLog.appendChild(aiBubble);

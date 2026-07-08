@@ -19,6 +19,9 @@
   <div class="crt-overlay"></div>
   <div class="crt-scanline-bar"></div>
   <div class="crt-screen-bezel"></div>
+  
+  <!-- Toast Notification Overlay Container -->
+  <div id="toast-container" class="toast-container"></div>
 
   <!-- Background Ambient Glows -->
   <div class="bg-glow bg-glow-1"></div>
@@ -53,6 +56,30 @@
       </button>
     </div>
   </header>
+
+  <!-- Compact Cyber System Health Banner -->
+  <div class="system-health-banner" id="system-health-bar">
+    <div class="health-item">
+      <span class="health-label"><i data-lucide="cpu" class="icon-sm"></i> AI COGNITION:</span>
+      <span class="health-status status-nominal" id="health-ai"><span class="pulse-dot"></span> 99.4% NOMINAL</span>
+    </div>
+    <div class="health-item">
+      <span class="health-label"><i data-lucide="activity" class="icon-sm"></i> IoT TELEMETRY:</span>
+      <span class="health-status status-nominal" id="health-iot"><span class="pulse-dot"></span> ACTIVE (412/412)</span>
+    </div>
+    <div class="health-item">
+      <span class="health-label"><i data-lucide="video" class="icon-sm"></i> CCTV NETWORK:</span>
+      <span class="health-status status-nominal" id="health-cctv"><span class="pulse-dot"></span> ONLINE (64/64)</span>
+    </div>
+    <div class="health-item">
+      <span class="health-label"><i data-lucide="cloud-rain" class="icon-sm"></i> WEATHER:</span>
+      <span class="health-status status-nominal" id="health-weather"><span class="pulse-dot"></span> OPEN ROOF (68°F)</span>
+    </div>
+    <div class="health-item">
+      <span class="health-label"><i data-lucide="wifi" class="icon-sm"></i> WAN LATENCY:</span>
+      <span class="health-status status-nominal" id="health-network"><span class="pulse-dot"></span> STABLE (5G / 12ms)</span>
+    </div>
+  </div>
 
   <!-- Main Grid Wrapper -->
   <main class="app-main-grid" id="main-content">

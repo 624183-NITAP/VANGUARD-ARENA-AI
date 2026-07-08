@@ -2407,5 +2407,204 @@ input[type="text"]:focus, select:focus {
   display: none !important;
 }
 
+/* ==========================================================================
+   PRODUCTION TELEMETRY REALISM & SMOOTH TRANSITIONS
+   ========================================================================== */
+
+/* --- System Health Bar --- */
+.system-health-banner {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background: rgba(10, 15, 28, 0.85);
+  border-bottom: 2px solid var(--border-light);
+  padding: 0.5rem 1rem;
+  font-family: var(--font-pixel);
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  z-index: 1000;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s ease;
+}
+.system-health-banner .health-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.system-health-banner .health-label {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--text-secondary);
+}
+.system-health-banner .health-label i {
+  width: 12px;
+  height: 12px;
+}
+.system-health-banner .health-status {
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.system-health-banner .status-nominal {
+  color: var(--neon-green);
+  text-shadow: 0 0 4px rgba(57, 255, 20, 0.4);
+}
+.system-health-banner .status-degraded {
+  color: var(--neon-yellow);
+  text-shadow: 0 0 4px rgba(255, 176, 0, 0.4);
+}
+.system-health-banner .status-critical {
+  color: var(--neon-red);
+  text-shadow: 0 0 4px rgba(255, 0, 85, 0.4);
+}
+.system-health-banner .pulse-dot {
+  width: 6px;
+  height: 6px;
+  background-color: currentColor;
+  border-radius: 50%;
+  display: inline-block;
+  animation: health-pulse-anim 1.5s infinite ease-in-out;
+}
+@keyframes health-pulse-anim {
+  0% { opacity: 0.3; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+  100% { opacity: 0.3; transform: scale(0.8); }
+}
+.accessibility-mode .system-health-banner {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  background: #000 !important;
+  color: #fff !important;
+  border-bottom: 2px solid #fff !important;
+}
+.accessibility-mode .pulse-dot {
+  animation: none !important;
+  opacity: 1 !important;
+}
+
+/* --- Toast Container --- */
+.toast-container {
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  z-index: 1000000;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  pointer-events: none;
+}
+.toast {
+  background: rgba(10, 15, 28, 0.95);
+  border: 2px solid var(--neon-cyan);
+  border-radius: 4px;
+  padding: 0.8rem 1.2rem;
+  font-family: var(--font-pixel);
+  font-size: 0.65rem;
+  color: var(--neon-cyan);
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+  pointer-events: auto;
+  animation: toast-slide-in 0.3s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+  min-width: 250px;
+  max-width: 350px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  transition: all 0.3s ease;
+}
+.toast-alert {
+  border-color: var(--neon-red) !important;
+  color: var(--neon-red) !important;
+  box-shadow: 0 0 15px rgba(255, 0, 85, 0.3) !important;
+}
+.toast-warning {
+  border-color: var(--neon-yellow) !important;
+  color: var(--neon-yellow) !important;
+  box-shadow: 0 0 15px rgba(255, 176, 0, 0.3) !important;
+}
+.toast-system {
+  border-color: var(--neon-green) !important;
+  color: var(--neon-green) !important;
+  box-shadow: 0 0 15px rgba(57, 255, 20, 0.3) !important;
+}
+.toast-icon i {
+  width: 18px;
+  height: 18px;
+}
+.toast-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.toast-title {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.toast-text {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  line-height: 1.3;
+}
+@keyframes toast-slide-in {
+  from { transform: translateX(120%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+@keyframes toast-fade-out {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(120%); opacity: 0; }
+}
+.accessibility-mode .toast {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  background: #000 !important;
+  color: #fff !important;
+  border: 3px solid #fff !important;
+  box-shadow: none !important;
+  animation: none !important;
+}
+
+/* --- Moving SVG Laser Tracker Glow --- */
+#active-routing-tracker {
+  animation: pulse-glow-tracker 1.5s infinite ease-in-out;
+}
+@keyframes pulse-glow-tracker {
+  0% { r: 5px; fill-opacity: 0.7; }
+  50% { r: 7.5px; fill-opacity: 1; }
+  100% { r: 5px; fill-opacity: 0.7; }
+}
+
+/* --- AI Chat Confidence & Spinner --- */
+.ai-confidence-badge {
+  font-family: var(--font-pixel);
+  font-size: 0.55rem;
+  background: rgba(57, 255, 20, 0.15);
+  color: var(--neon-green);
+  border: 1px solid var(--neon-green);
+  border-radius: 3px;
+  padding: 0.1rem 0.3rem;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+}
+.ai-spinner-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-pixel);
+  font-size: 0.6rem;
+  color: var(--neon-green);
+}
+.ai-spinner-icon {
+  animation: spinner-spin-anim 1s linear infinite;
+  display: inline-block;
+}
+@keyframes spinner-spin-anim {
+  to { transform: rotate(360deg); }
+}
+
+
 
 
