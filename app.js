@@ -18,6 +18,110 @@ document.addEventListener('DOMContentLoaded', () => {
   // Custom generated incident count
   let customIncidentCounter = 3;
 
+  // --- RETRO SOUND SYNTHESIS ENGINE ---
+  function playRetroSound(type) {
+    if (document.body.classList.contains('accessibility-mode')) return;
+    try {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContext) return;
+      const ctx = new AudioContext();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      
+      const now = ctx.currentTime;
+      if (type === 'beep') {
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(800, now);
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+        osc.start(now);
+        osc.stop(now + 0.08);
+      } else if (type === 'boop') {
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(450, now);
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+        osc.start(now);
+        osc.stop(now + 0.08);
+      } else if (type === 'warn') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(550, now);
+        osc.frequency.setValueAtTime(750, now + 0.12);
+        osc.frequency.setValueAtTime(550, now + 0.24);
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+        osc.start(now);
+        osc.stop(now + 0.38);
+      } else if (type === 'success') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(350, now);
+        osc.frequency.setValueAtTime(500, now + 0.06);
+        osc.frequency.setValueAtTime(650, now + 0.12);
+        osc.frequency.setValueAtTime(900, now + 0.18);
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+        osc.start(now);
+        osc.stop(now + 0.28);
+      }
+    } catch (e) {
+      console.warn("Web Audio API synthesis failed", e);
+    }
+  }
+
+  // --- RETRO LIVE EVENT POOL & LOADER ---
+  const retroLiveEventsPool = [
+    { type: 'match', text: "76' - Foul by Bellingham (England) on Musah near penalty area." },
+    { type: 'alert', text: "Gate B ticket scanner lines dropping. Average wait time now: 3 mins." },
+    { type: 'nav', text: "AI navigation routing recommends Gate B detour for Sectors 103, 104." },
+    { type: 'match', text: "79' - Close! Header by Kane (England) hits the crossbar!" },
+    { type: 'system', text: "Thermal sensors in Sector 104 restroom report ambient temp normal (68°F)." },
+    { type: 'alert', text: "Transit shuttle Lot B reports boarding queues increasing. Use trains if heading to NYC." },
+    { type: 'match', text: "82' - Substitution England: #9 Kane OFF, #18 Watkins ON." },
+    { type: 'system', text: "AI dispatch: 2 volunteer units re-allocated to Gate A exit tunnels." },
+    { type: 'match', text: "85' - GOAL! USA score! Aaronson slots it in after a counter-attack!" },
+    { type: 'alert', text: "ALERT: USA leads England 2-1! Sector 105 crowd density rising." },
+    { type: 'system', text: "Concourse concession taco stand reports wait time decrease: 5 mins." },
+    { type: 'match', text: "88' - Yellow Card for Aaronson (USA) for excessive celebration." },
+    { type: 'alert', text: "Gate A ticket gate operations recovered. Switch port Cellular WAN #2 stable." },
+    { type: 'match', text: "90' - Fourth Official indicates 5 minutes of added time." },
+    { type: 'match', text: "90+2' - Corner kick for England. Pressure mounting in USA area." },
+    { type: 'match', text: "90+5' - FULL TIME! USA defeats England 2-1 in a thrilling Group match!" }
+  ];
+
+  let liveEventIndex = 0;
+  function appendLiveEvent(type, text) {
+    const container = document.getElementById('live-event-feed-container');
+    if (!container) return;
+    
+    // Remove placeholder
+    const placeholder = container.querySelector('.feed-placeholder');
+    if (placeholder) placeholder.remove();
+    
+    const now = new Date();
+    const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+    
+    const line = document.createElement('div');
+    line.className = 'feed-log-line';
+    line.innerHTML = `
+      <span class="feed-time">${timeStr}</span>
+      <span class="feed-tag tag-${type}">${type}</span>
+      <span class="feed-text">${text}</span>
+    `;
+    
+    container.appendChild(line);
+    container.scrollTop = container.scrollHeight;
+    
+    // Play retro beep based on type
+    if (type === 'alert') {
+      playRetroSound('warn');
+    } else {
+      playRetroSound('boop');
+    }
+  }
+
   // --- GEMINI API INTEGRATION ---
   let GEMINI_API_KEY = localStorage.getItem('GEMINI_API_KEY') || "";
 
@@ -340,6 +444,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const inputGate = document.getElementById('input-gate');
   const inputSector = document.getElementById('input-sector');
+  const inputRoutePref = document.getElementById('input-route-pref');
   const checkboxWheelchair = document.getElementById('checkbox-wheelchair');
   const btnCalculateRoute = document.getElementById('btn-calculate-route');
   const directionsOutputBox = document.getElementById('directions-output-box');
@@ -350,8 +455,26 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- INITIALIZATION ---
   stadiumMap.classList.add('stadium-map-heatmap');
 
+  // Start the live event ticker interval
+  setInterval(() => {
+    if (liveEventIndex < retroLiveEventsPool.length) {
+      const ev = retroLiveEventsPool[liveEventIndex];
+      appendLiveEvent(ev.type, ev.text);
+      liveEventIndex++;
+    } else {
+      const randEv = retroLiveEventsPool[Math.floor(Math.random() * retroLiveEventsPool.length)];
+      appendLiveEvent(randEv.type, randEv.text + " (Repeated telemetry loop)");
+    }
+  }, 18000);
+
+  function clearRoutePath() {
+    const routePath = document.getElementById('active-routing-path');
+    if (routePath) routePath.style.display = 'none';
+  }
+
   // --- VIEW SELECTOR TOGGLES ---
   btnStaffView.addEventListener('click', () => {
+    playRetroSound('beep');
     btnStaffView.classList.add('active');
     btnFanView.classList.remove('active');
     staffViewPanel.classList.remove('hidden-panel');
@@ -359,6 +482,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   btnFanView.addEventListener('click', () => {
+    playRetroSound('beep');
     btnFanView.classList.add('active');
     btnStaffView.classList.remove('active');
     fanViewPanel.classList.remove('hidden-panel');
@@ -367,16 +491,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- MAP CONTROLS OVERLAYS ---
   mapBtnHeatmap.addEventListener('click', () => {
+    playRetroSound('beep');
+    clearRoutePath();
     setMapClass('stadium-map-heatmap');
     setActiveMapBtn(mapBtnHeatmap);
   });
 
   mapBtnAccessibility.addEventListener('click', () => {
+    playRetroSound('beep');
+    clearRoutePath();
     setMapClass('stadium-map-accessibility');
     setActiveMapBtn(mapBtnAccessibility);
   });
 
   mapBtnFacilities.addEventListener('click', () => {
+    playRetroSound('beep');
+    clearRoutePath();
     setMapClass('stadium-map-facilities');
     setActiveMapBtn(mapBtnFacilities);
   });
@@ -418,6 +548,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     sector.addEventListener('click', () => {
+      playRetroSound('beep');
       // If clicking sector in Fan mode, auto populate Seat Routing
       const sectorId = sector.id.replace('sector-', '');
       inputSector.value = sectorId;
@@ -460,6 +591,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const solveBtn = e.target.closest('.btn-incident-solve');
     if (!solveBtn) return;
     
+    playRetroSound('beep');
     // De-activate current solving indicator
     document.querySelectorAll('.btn-incident-solve').forEach(btn => btn.classList.remove('active-solve'));
     document.querySelectorAll('.incident-row').forEach(row => row.classList.remove('active-row'));
@@ -502,6 +634,7 @@ document.addEventListener('DOMContentLoaded', () => {
       consoleStatusText.textContent = "Resolution generated (100% confidence)";
       consoleLog.innerHTML = responseHtml;
       consoleFooter.style.display = 'flex';
+      playRetroSound('success');
     } catch (err) {
       console.warn("Gemini API call failed for mitigation. Using high-fidelity local response.", err);
       // Fallback to static resolution
@@ -514,6 +647,7 @@ document.addEventListener('DOMContentLoaded', () => {
         consoleLog.innerHTML = `<h4>Custom GenAI Response (Fallback)</h4><p>Containment procedures logged. Redirection notices pushed to active fan tickets in near sectors.</p>`;
       }
       consoleFooter.style.display = 'flex';
+      playRetroSound('success');
     }
 
     // Auto highlight related map segments
@@ -530,11 +664,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Speak Mitigation (TTS)
   btnSpeakMitigation.addEventListener('click', () => {
+    playRetroSound('beep');
     const content = consoleLog.innerText;
     speakAI(content);
   });
 
   btnDispatchAction.addEventListener('click', () => {
+    playRetroSound('success');
     alert("GenAI dispatch alert broadcasted successfully to all venue volunteers and security panels via local mesh network.");
   });
 
@@ -616,6 +752,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   fanTabs.forEach(tab => {
     tab.btn.addEventListener('click', () => {
+      playRetroSound('beep');
       fanTabs.forEach(t => {
         t.btn.classList.remove('active');
         t.content.classList.remove('active-tab-content');
@@ -630,6 +767,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Language button toggler
   langButtons.forEach(btn => {
     btn.addEventListener('click', () => {
+      playRetroSound('beep');
       langButtons.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       currentLanguage = btn.getAttribute('data-lang');
@@ -659,6 +797,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Handle send message logic
   btnChatSend.addEventListener('click', () => {
+    playRetroSound('beep');
     submitUserQuery();
   });
 
@@ -672,6 +811,7 @@ document.addEventListener('DOMContentLoaded', () => {
   quickChips.addEventListener('click', (e) => {
     const btn = e.target.closest('.chip-btn');
     if (!btn) return;
+    playRetroSound('beep');
     const query = btn.getAttribute('data-query');
     chatInput.value = query;
     submitUserQuery();
@@ -841,91 +981,228 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // --- COORDINATE MAPPING FOR SVG MAP NAVIGATION PATHS ---
+  const sectorCoords = {
+    '101': { x: 490, y: 150 },
+    '102': { x: 610, y: 200 },
+    '103': { x: 500, y: 450 },
+    '104': { x: 610, y: 400 },
+    '105': { x: 290, y: 450 },
+    '106': { x: 190, y: 400 },
+    '107': { x: 290, y: 150 },
+    '108': { x: 190, y: 200 }
+  };
+
+  const gateCoords = {
+    'Gate A': { x: 400, y: 50 },
+    'Gate B': { x: 730, y: 300 },
+    'Gate C': { x: 400, y: 550 },
+    'Gate D': { x: 70, y: 300 }
+  };
+
+  function drawRoutePath(gate, sector, accessible) {
+    const gCoord = gateCoords[gate];
+    const sCoord = sectorCoords[sector];
+    if (!gCoord || !sCoord) return;
+    
+    const X0 = 400, Y0 = 300;
+    const Rc = accessible ? 230 : 190; 
+    
+    const thetaGate = Math.atan2(gCoord.y - Y0, gCoord.x - X0);
+    const thetaSec = Math.atan2(sCoord.y - Y0, sCoord.x - X0);
+    
+    const cx1 = X0 + Rc * Math.cos(thetaGate);
+    const cy1 = Y0 + Rc * Math.sin(thetaGate);
+    const cx2 = X0 + Rc * Math.cos(thetaSec);
+    const cy2 = Y0 + Rc * Math.sin(thetaSec);
+    
+    let angleDiff = thetaSec - thetaGate;
+    while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
+    while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
+    
+    const largeArcFlag = Math.abs(angleDiff) > Math.PI / 2 ? 1 : 0;
+    const sweepFlag = angleDiff > 0 ? 1 : 0;
+    
+    const pathD = `M ${gCoord.x} ${gCoord.y} L ${cx1.toFixed(1)} ${cy1.toFixed(1)} A ${Rc} ${Rc} 0 ${largeArcFlag} ${sweepFlag} ${cx2.toFixed(1)} ${cy2.toFixed(1)} L ${sCoord.x} ${sCoord.y}`;
+    
+    let routePath = document.getElementById('active-routing-path');
+    if (!routePath) {
+      routePath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      routePath.setAttribute('id', 'active-routing-path');
+      routePath.setAttribute('class', 'active-routing-path');
+      stadiumMap.appendChild(routePath);
+    }
+    
+    routePath.setAttribute('d', pathD);
+    routePath.style.display = 'block';
+  }
+
   // --- SEAT WAYFINDING ROUTING ALGORITHM ---
-  btnCalculateRoute.addEventListener('click', () => {
+  btnCalculateRoute.addEventListener('click', async () => {
+    playRetroSound('beep');
     const gate = inputGate.value;
     const sector = inputSector.value;
     const accessible = checkboxWheelchair.checked;
+    const preference = inputRoutePref.value;
 
     directionsOutputBox.style.display = 'block';
-    directionsStepsList.innerHTML = '';
+    directionsStepsList.innerHTML = `
+      <li class="direction-step loading-step">
+        <span class="ticker-live-dot blinking"></span> [CALCULATING OPTIMAL PATH VECTORS VIA GENAI...]
+      </li>
+    `;
 
-    // Adjusting metric based on gate & sector
-    const gateLetters = { 'Gate A': 3, 'Gate B': 6, 'Gate C': 9, 'Gate D': 12 };
-    const timeVal = Math.max(3, gateLetters[gate] - (accessible ? 1 : 2));
-    const distVal = timeVal * 70;
+    const systemPrompt = `You are Vanguard Arena AI Navigation Engine.
+    Given an entry gate, seat sector, accessible requirement, and optimization preference, calculate the optimal walking path directions.
+    
+    Current Stadium Conditions:
+    - Gate A (North): HEAVILY CONGESTED (22m wait, turnstile scanners offline). Detour incoming fans to Gate B or Gate D.
+    - Gate B (East): STABLE (4m wait).
+    - Gate C (South): MODERATE (11m wait).
+    - Gate D (West): MODERATE (8m wait).
+    - Sector 104: nearest to Gate B. Ramp 3 on the right is step-free.
+    - Concourse restroom 104 has 15m wait. Restrooms near Sector 102/103 have 2m wait.
+    - Budweiser Beer concession at Sector 104 has 18m wait. Concourse 105 Taco Arena has 8m wait.
+    
+    Return your output in a raw JSON string ONLY containing:
+    {
+      "time": number (minutes, e.g. 7),
+      "distance": number (meters, e.g. 480),
+      "steps": [
+        "Step 1 text...",
+        "Step 2 text..."
+      ],
+      "ecoTip": "Sustainability tip/advice..."
+    }
+    Do NOT output markdown code blocks. Give smart advice: e.g., if Gate A is selected, recommend detouring via Gate B or D due to offline scanners. If preference is 'green', suggest recycling spots or clean concessions. If accessible is checked, emphasize elevators and ramp 3.`;
 
-    directionsOutputBox.querySelector('.route-badge:first-child').innerHTML = `<i data-lucide="clock"></i> ${timeVal} min walk`;
-    directionsOutputBox.querySelector('.route-badge:last-child').innerHTML = `<i data-lucide="footprints"></i> ${distVal} meters`;
-
-    // Define steps
-    const steps = [
-      `Enter via ${gate}. Head past the main ticketing checkpoints.`,
-      `Navigate towards Section Concourse Level 1.`,
-      `Head past the ${sector === '104' || sector === '103' ? 'Budweiser Beer Concession' : 'Taco Concession'} counter.`,
-    ];
-
-    if (accessible) {
-      steps.push(`Use the Express Elevator near Sector 102/103 down to Accessible Portal ${sector}.`);
-      steps.push(`Go to Row 12, wheelchair platform seat 4.`);
-      // Highlight accessibility overlay
-      setMapClass('stadium-map-accessibility');
-      setActiveMapBtn(mapBtnAccessibility);
-    } else {
-      steps.push(`Walk directly through seating bowl gate portal ${sector}.`);
-      steps.push(`Proceed down steps to Row 12, seat 4.`);
+    const userPrompt = `Calculate path from ${gate} to Sector ${sector}. Accessible/Step-Free: ${accessible}. Strategy Preference: ${preference}.`;
+    
+    let result = null;
+    try {
+      const responseText = await queryGemini(systemPrompt, userPrompt);
+      const cleanJson = responseText.replace(/```json|```/g, '').trim();
+      result = JSON.parse(cleanJson);
+    } catch (err) {
+      console.warn("Gemini API call failed for route planner. Simulating local routing.", err);
+      result = simulateLocalRouting(gate, sector, accessible, preference);
     }
 
-    steps.forEach((step, idx) => {
+    directionsOutputBox.querySelector('.route-badge:first-child').innerHTML = `<i data-lucide="clock"></i> ${result.time} min walk`;
+    directionsOutputBox.querySelector('.route-badge:last-child').innerHTML = `<i data-lucide="footprints"></i> ${result.distance} meters`;
+
+    directionsStepsList.innerHTML = '';
+    
+    result.steps.forEach((step, idx) => {
       setTimeout(() => {
         const li = document.createElement('li');
         li.className = 'direction-step';
-        li.textContent = step;
+        li.innerHTML = `<span class="step-num">${idx + 1}.</span> ${step}`;
         directionsStepsList.appendChild(li);
+        playRetroSound('boop');
       }, idx * 250);
     });
 
+    if (result.ecoTip) {
+      setTimeout(() => {
+        const li = document.createElement('li');
+        li.className = 'direction-step eco-route-tip';
+        li.innerHTML = `<i data-lucide="leaf" class="icon-green"></i> <strong>AI ECO ADVICE:</strong> ${result.ecoTip}`;
+        directionsStepsList.appendChild(li);
+        lucide.createIcons();
+        playRetroSound('success');
+      }, result.steps.length * 250 + 100);
+    }
+
+    drawRoutePath(gate, sector, accessible);
+    appendLiveEvent('nav', `AI routed user from ${gate} to Sec ${sector} (${preference} mode, ${result.time}m).`);
+
     lucide.createIcons();
-    speakAI(`Calculated route to sector ${sector} from ${gate}.`);
+    speakAI(`Optimal path generated: ${result.time} minutes walk.`);
   });
+
+  function simulateLocalRouting(gate, sector, accessible, preference) {
+    let time = 6;
+    let distance = 420;
+    const steps = [];
+    let ecoTip = "";
+
+    const gateLetters = { 'Gate A': 3, 'Gate B': 6, 'Gate C': 9, 'Gate D': 12 };
+    time = Math.max(3, gateLetters[gate] || 5);
+    if (accessible) time += 2;
+    distance = time * 75;
+
+    if (gate === 'Gate A') {
+      steps.push(`ALERT: Turnstile scanners offline at ${gate}. Divert to Gate B (East) to bypass 22m delay.`);
+      steps.push(`Proceed through Gate B check-in checkpoints.`);
+      time += 4;
+      distance += 250;
+    } else {
+      steps.push(`Enter stadium via ${gate}. Scan your digital World Cup ticket.`);
+    }
+
+    steps.push(`Walk to the Concourse corridor level.`);
+
+    if (preference === 'green') {
+      steps.push(`Pass the solar-awning canopy station. Scan the green QR code to log travel stats.`);
+      steps.push(`Grab a cold drink at Sector 102/103 concessions (compostable packaging used).`);
+      ecoTip = "Bringing a stadium-approved clear bottle prevents cup waste. Filtered water fountains are free at Gate B concourses!";
+    }
+
+    if (accessible) {
+      steps.push(`Take the Express elevator near Sector 102 to Level 1.`);
+      steps.push(`Use Accessible Ramp 3 on the right side of Portal 104.`);
+      steps.push(`Go directly to Seat Wheelchair Platform Row 12.`);
+    } else {
+      steps.push(`Go through Sector ${sector} seating portal.`);
+      steps.push(`Walk down steps to Row 12, Seat 4.`);
+    }
+
+    if (!ecoTip) {
+      ecoTip = "Using Gate B east walkways reduces queue bottlenecks by 75% compared to northern tunnels.";
+    }
+
+    return { time, distance, steps, ecoTip };
+  }
 
   // --- GREEN PLAY SUSTAINABILITY LOGIC ---
   btnCalculateEco.addEventListener('click', () => {
+    playRetroSound('beep');
     const selectedOption = selectTransitMode.options[selectTransitMode.selectedIndex];
     const pointsToAdd = parseInt(selectedOption.getAttribute('data-points')) || 0;
     const co2Saved = selectedOption.getAttribute('data-co2');
 
     totalEcoPoints += pointsToAdd;
     
-    // Update dashboard UI
     greenScoreStat.querySelector('.fan-stat-val').textContent = `${totalEcoPoints} pts`;
     document.querySelector('.eco-circle-value').textContent = totalEcoPoints;
 
-    // Show points alert bubble
     alert(`Success: logged travel! Earned +${pointsToAdd} Eco Points. Total: ${totalEcoPoints} pts.`);
     
-    // Auto-update tier if points above threshold
     if (totalEcoPoints >= 200) {
       document.querySelector('.eco-stat-details h3').textContent = "Carbon Saver Tier: Platinum Champion";
     }
 
-    // Play speak alert
+    playRetroSound('success');
     speakAI(chatbotLocales[currentLanguage].ecoSuccess);
   });
 
-  // Generates new GenAI-based sustainability tips
   btnNewEcoTip.addEventListener('click', () => {
+    playRetroSound('beep');
     const tip = dynamicEcoTips[Math.floor(Math.random() * dynamicEcoTips.length)];
     ecoTipBox.innerHTML = `"${tip}"`;
+    playRetroSound('success');
     speakAI(tip);
   });
 
   // --- GLOBAL ACCESSIBILITY FLOATING BUTTON CONTROLLER ---
   btnAccessibilityMode.addEventListener('click', () => {
+    playRetroSound('beep');
     document.body.classList.toggle('accessibility-mode');
     if (document.body.classList.contains('accessibility-mode')) {
       btnAccessibilityMode.innerHTML = `<i data-lucide="eye"></i> Normal Contrast`;
-      speakAI("Accessibility mode enabled. Large text and high contrast borders loaded.");
+      clearRoutePath();
+      speakAI("Accessibility mode enabled. Large text and high contrast borders loaded. CRT overlay effects and sound alarms deactivated.");
     } else {
       btnAccessibilityMode.innerHTML = `<i data-lucide="accessibility"></i> Accessibility Mode`;
       speakAI("Returned to standard interface layout.");
@@ -944,6 +1221,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Toggle Visibility
   btnChatbotToggle.addEventListener('click', () => {
+    playRetroSound('beep');
     if (chatbotWindow.style.display === 'none') {
       chatbotWindow.style.display = 'flex';
       btnChatbotToggle.innerHTML = `<i data-lucide="x"></i> Close Chat`;
@@ -956,6 +1234,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   btnChatbotClose.addEventListener('click', () => {
+    playRetroSound('beep');
     chatbotWindow.style.display = 'none';
     btnChatbotToggle.innerHTML = `<i data-lucide="sparkles"></i> AI Concierge`;
     lucide.createIcons();
@@ -964,6 +1243,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Language selectors in float chat
   langButtonsFloat.forEach(btn => {
     btn.addEventListener('click', () => {
+      playRetroSound('beep');
       langButtonsFloat.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       currentLanguage = btn.getAttribute('data-lang');
@@ -982,11 +1262,13 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   btnChatbotSendFloat.addEventListener('click', () => {
+    playRetroSound('beep');
     submitFloatUserQuery();
   });
 
   chatbotInputFloat.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
+      playRetroSound('beep');
       submitFloatUserQuery();
     }
   });

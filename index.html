@@ -4,16 +4,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Vanguard Arena AI - FIFA World Cup 2026 Operations & Concierge</title>
-  <!-- Google Fonts: Outfit & Inter -->
+  <!-- Google Fonts: Outfit, Inter, VT323, Share Tech Mono, Press Start 2P -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&family=Press+Start+2P&family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
   <!-- Lucide Icons via ESM (to render clean modern vector icons) -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Main Stylesheet -->
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
+  <!-- CRT Screen Overlay & Scanlines -->
+  <div class="crt-overlay"></div>
+  <div class="crt-scanline-bar"></div>
 
   <!-- Background Ambient Glows -->
   <div class="bg-glow bg-glow-1"></div>
@@ -52,147 +56,182 @@
   <!-- Main Grid Wrapper -->
   <main class="app-main-grid" id="main-content">
     
-    <!-- ==================== LEFT PANEL: STADIUM MAP VIEW ==================== -->
-    <section class="panel-card map-panel">
-      <div class="panel-header">
-        <div class="panel-title-group">
-          <i data-lucide="map-pin" class="panel-icon icon-cyan"></i>
-          <div>
-            <h2 class="panel-title">Interactive Arena Map</h2>
-            <p class="panel-subtitle">Real-time overlays and facility mapping</p>
+    <!-- ==================== LEFT COLUMN WRAPPER ==================== -->
+    <div class="left-column-wrapper">
+      
+      <!-- ==================== LEFT PANEL: STADIUM MAP VIEW ==================== -->
+      <section class="panel-card map-panel">
+        <div class="panel-header">
+          <div class="panel-title-group">
+            <i data-lucide="map-pin" class="panel-icon icon-cyan"></i>
+            <div>
+              <h2 class="panel-title">Interactive Arena Map</h2>
+              <p class="panel-subtitle">Real-time overlays and facility mapping</p>
+            </div>
           </div>
-        </div>
-        <!-- Map Controls -->
-        <div class="map-controls">
-          <button class="map-control-btn active" id="map-btn-heatmap">
-            <span class="dot-indicator bg-success"></span> Heatmap
-          </button>
-          <button class="map-control-btn" id="map-btn-accessibility">
-            <span class="dot-indicator bg-info"></span> Accessible Paths
-          </button>
-          <button class="map-control-btn" id="map-btn-facilities">
-            <span class="dot-indicator bg-purple"></span> Restrooms/Concessions
-          </button>
-        </div>
-      </div>
-
-      <div class="panel-body map-body-container">
-        <!-- SVG Stadium Map -->
-        <div class="stadium-svg-wrapper">
-          <svg viewBox="0 0 800 600" class="stadium-svg" id="stadium-map">
-            <defs>
-              <radialGradient id="pitch-glow" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stop-color="#10b981" stop-opacity="0.2"/>
-                <stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
-              </radialGradient>
-              <filter id="neon-glow-cyan">
-                <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-                <feMerge>
-                  <feMergeNode in="coloredBlur"/>
-                  <feMergeNode in="SourceGraphic"/>
-                </feMerge>
-              </filter>
-            </defs>
-
-            <!-- Outer Stadium Boundary -->
-            <rect x="20" y="20" width="760" height="560" rx="280" class="stadium-outer-ring" />
-            <rect x="50" y="50" width="700" height="500" rx="250" class="stadium-mid-ring" />
-            <rect x="90" y="90" width="620" height="420" rx="210" class="stadium-inner-ring" />
-
-            <!-- Pitch/Field -->
-            <rect x="250" y="200" width="300" height="200" rx="10" class="stadium-pitch" />
-            <circle cx="400" cy="300" r="45" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2" />
-            <line x1="400" y1="200" x2="400" y2="400" stroke="rgba(255,255,255,0.4)" stroke-width="2" />
-            <!-- Goal Areas -->
-            <rect x="250" y="260" width="25" height="80" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2" />
-            <rect x="525" y="260" width="25" height="80" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2" />
-
-            <!-- Seating Sectors / Zones -->
-            <!-- Sector 101 - North East -->
-            <path d="M 450,80 L 600,100 L 530,220 L 440,190 Z" class="stadium-sector sector-green" id="sector-101" data-name="Sector 101" data-capacity="94%" data-wait="3m" />
-            <!-- Sector 102 - East Outer -->
-            <path d="M 605,105 L 720,200 L 600,280 L 535,225 Z" class="stadium-sector sector-yellow" id="sector-102" data-name="Sector 102" data-capacity="88%" data-wait="12m" />
-            <!-- Sector 103 - South East -->
-            <path d="M 600,500 L 450,520 L 440,410 L 530,380 Z" class="stadium-sector sector-green" id="sector-103" data-name="Sector 103" data-capacity="91%" data-wait="5m" />
-            <!-- Sector 104 - South Outer -->
-            <path d="M 720,400 L 605,495 L 535,375 L 600,320 Z" class="stadium-sector sector-red" id="sector-104" data-name="Sector 104" data-capacity="98%" data-wait="24m" />
-            <!-- Sector 105 - South West -->
-            <path d="M 350,520 L 200,500 L 270,380 L 360,410 Z" class="stadium-sector sector-green" id="sector-105" data-name="Sector 105" data-capacity="85%" data-wait="4m" />
-            <!-- Sector 106 - West Outer -->
-            <path d="M 195,495 L 80,400 L 200,320 L 265,375 Z" class="stadium-sector sector-yellow" id="sector-106" data-name="Sector 106" data-capacity="78%" data-wait="14m" />
-            <!-- Sector 107 - North West -->
-            <path d="M 200,100 L 350,80 L 360,190 L 270,220 Z" class="stadium-sector sector-green" id="sector-107" data-name="Sector 107" data-capacity="92%" data-wait="6m" />
-            <!-- Sector 108 - West Inner -->
-            <path d="M 80,200 L 195,105 L 265,225 L 200,280 Z" class="stadium-sector sector-yellow" id="sector-108" data-name="Sector 108" data-capacity="81%" data-wait="11m" />
-
-            <!-- Accessibility Ramps (Dotted Neon Paths - toggled by class) -->
-            <path d="M 100,300 C 120,280 200,280 220,300" class="access-path" />
-            <path d="M 700,300 C 680,280 600,280 580,300" class="access-path" />
-            <path d="M 400,60 C 400,100 400,160 400,180" class="access-path" />
-            <path d="M 400,540 C 400,500 400,440 400,420" class="access-path" />
-
-            <!-- Entrance Gates -->
-            <!-- Gate A (North) -->
-            <g class="map-gate-node" id="gate-a" data-name="Gate A (North)" data-wait="22 min" data-level="high">
-              <circle cx="400" cy="50" r="14" class="gate-circle pulse-red" />
-              <text x="400" y="54" text-anchor="middle" class="gate-label">A</text>
-            </g>
-            <!-- Gate B (East) -->
-            <g class="map-gate-node" id="gate-b" data-name="Gate B (East)" data-wait="4 min" data-level="low">
-              <circle cx="730" cy="300" r="14" class="gate-circle pulse-green" />
-              <text x="730" y="304" text-anchor="middle" class="gate-label">B</text>
-            </g>
-            <!-- Gate C (South) -->
-            <g class="map-gate-node" id="gate-c" data-name="Gate C (South)" data-wait="11 min" data-level="mid">
-              <circle cx="400" cy="550" r="14" class="gate-circle pulse-yellow" />
-              <text x="400" y="554" text-anchor="middle" class="gate-label">C</text>
-            </g>
-            <!-- Gate D (West) -->
-            <g class="map-gate-node" id="gate-d" data-name="Gate D (West)" data-wait="8 min" data-level="mid">
-              <circle cx="70" cy="300" r="14" class="gate-circle pulse-yellow" />
-              <text x="70" y="304" text-anchor="middle" class="gate-label">D</text>
-            </g>
-
-            <!-- Facility Nodes (Restrooms, Concessions, Transit) -->
-            <g class="facility-node" id="fac-restroom-1" data-name="Concourse A Restrooms" data-status="Crowded (15m wait)">
-              <circle cx="300" cy="140" r="8" class="facility-dot dot-restroom" />
-            </g>
-            <g class="facility-node" id="fac-restroom-2" data-name="Concourse C Restrooms" data-status="Normal (2m wait)">
-              <circle cx="500" cy="460" r="8" class="facility-dot dot-restroom" />
-            </g>
-            <g class="facility-node" id="fac-food-1" data-name="Budweiser Beer Concession" data-status="High (18m queue)">
-              <circle cx="500" cy="140" r="8" class="facility-dot dot-food" />
-            </g>
-            <g class="facility-node" id="fac-food-2" data-name="Taco Arena Concession" data-status="Medium (8m queue)">
-              <circle cx="300" cy="460" r="8" class="facility-dot dot-food" />
-            </g>
-            <!-- Transit Hubs -->
-            <g class="facility-node" id="fac-train" data-name="MetLife Rail Transit Station" data-status="Heavy Boarding Queue">
-              <circle cx="750" cy="100" r="10" class="facility-dot dot-transit" />
-            </g>
-            <g class="facility-node" id="fac-bus" data-name="Stadium Shuttle Terminal" data-status="Regular Service">
-              <circle cx="50" cy="500" r="10" class="facility-dot dot-transit" />
-            </g>
-          </svg>
-
-          <!-- SVG Hover Detail Card -->
-          <div class="map-tooltip" id="map-tooltip">
-            <h4 class="tooltip-title">Sector 104</h4>
-            <div class="tooltip-detail"><span class="label">Capacity:</span> <span class="value" id="tooltip-capacity">98%</span></div>
-            <div class="tooltip-detail"><span class="label">Est. Queue:</span> <span class="value" id="tooltip-wait">24m</span></div>
+          <!-- Map Controls -->
+          <div class="map-controls">
+            <button class="map-control-btn active" id="map-btn-heatmap">
+              <span class="dot-indicator bg-success"></span> Heatmap
+            </button>
+            <button class="map-control-btn" id="map-btn-accessibility">
+              <span class="dot-indicator bg-info"></span> Accessible Paths
+            </button>
+            <button class="map-control-btn" id="map-btn-facilities">
+              <span class="dot-indicator bg-purple"></span> Restrooms/Concessions
+            </button>
           </div>
         </div>
 
-        <!-- Legend -->
-        <div class="map-legend">
-          <div class="legend-item"><span class="legend-color-box bg-success"></span> Normal (Low Delay)</div>
-          <div class="legend-item"><span class="legend-color-box bg-warning"></span> Moderate Load</div>
-          <div class="legend-item"><span class="legend-color-box bg-danger"></span> High Density / Delay</div>
-          <div class="legend-item"><span class="legend-color-box bg-info-border"></span> Accessibility Route</div>
-          <div class="legend-item"><span class="legend-color-box bg-purple"></span> Facility Node</div>
+        <div class="panel-body map-body-container">
+          <!-- SVG Stadium Map -->
+          <div class="stadium-svg-wrapper">
+            <svg viewBox="0 0 800 600" class="stadium-svg" id="stadium-map">
+              <defs>
+                <radialGradient id="pitch-glow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#10b981" stop-opacity="0.2"/>
+                  <stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
+                </radialGradient>
+                <filter id="neon-glow-cyan">
+                  <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                  <feMerge>
+                    <feMergeNode in="coloredBlur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
+              </defs>
+
+              <!-- Outer Stadium Boundary -->
+              <rect x="20" y="20" width="760" height="560" rx="280" class="stadium-outer-ring" />
+              <rect x="50" y="50" width="700" height="500" rx="250" class="stadium-mid-ring" />
+              <rect x="90" y="90" width="620" height="420" rx="210" class="stadium-inner-ring" />
+
+              <!-- Pitch/Field -->
+              <rect x="250" y="200" width="300" height="200" rx="10" class="stadium-pitch" />
+              <circle cx="400" cy="300" r="45" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2" />
+              <line x1="400" y1="200" x2="400" y2="400" stroke="rgba(255,255,255,0.4)" stroke-width="2" />
+              <!-- Goal Areas -->
+              <rect x="250" y="260" width="25" height="80" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2" />
+              <rect x="525" y="260" width="25" height="80" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2" />
+
+              <!-- Seating Sectors / Zones -->
+              <!-- Sector 101 - North East -->
+              <path d="M 450,80 L 600,100 L 530,220 L 440,190 Z" class="stadium-sector sector-green" id="sector-101" data-name="Sector 101" data-capacity="94%" data-wait="3m" />
+              <!-- Sector 102 - East Outer -->
+              <path d="M 605,105 L 720,200 L 600,280 L 535,225 Z" class="stadium-sector sector-yellow" id="sector-102" data-name="Sector 102" data-capacity="88%" data-wait="12m" />
+              <!-- Sector 103 - South East -->
+              <path d="M 600,500 L 450,520 L 440,410 L 530,380 Z" class="stadium-sector sector-green" id="sector-103" data-name="Sector 103" data-capacity="91%" data-wait="5m" />
+              <!-- Sector 104 - South Outer -->
+              <path d="M 720,400 L 605,495 L 535,375 L 600,320 Z" class="stadium-sector sector-red" id="sector-104" data-name="Sector 104" data-capacity="98%" data-wait="24m" />
+              <!-- Sector 105 - South West -->
+              <path d="M 350,520 L 200,500 L 270,380 L 360,410 Z" class="stadium-sector sector-green" id="sector-105" data-name="Sector 105" data-capacity="85%" data-wait="4m" />
+              <!-- Sector 106 - West Outer -->
+              <path d="M 195,495 L 80,400 L 200,320 L 265,375 Z" class="stadium-sector sector-yellow" id="sector-106" data-name="Sector 106" data-capacity="78%" data-wait="14m" />
+              <!-- Sector 107 - North West -->
+              <path d="M 200,100 L 350,80 L 360,190 L 270,220 Z" class="stadium-sector sector-green" id="sector-107" data-name="Sector 107" data-capacity="92%" data-wait="6m" />
+              <!-- Sector 108 - West Inner -->
+              <path d="M 80,200 L 195,105 L 265,225 L 200,280 Z" class="stadium-sector sector-yellow" id="sector-108" data-name="Sector 108" data-capacity="81%" data-wait="11m" />
+
+              <!-- Accessibility Ramps (Dotted Neon Paths - toggled by class) -->
+              <path d="M 100,300 C 120,280 200,280 220,300" class="access-path" />
+              <path d="M 700,300 C 680,280 600,280 580,300" class="access-path" />
+              <path d="M 400,60 C 400,100 400,160 400,180" class="access-path" />
+              <path d="M 400,540 C 400,500 400,440 400,420" class="access-path" />
+
+              <!-- Entrance Gates -->
+              <!-- Gate A (North) -->
+              <g class="map-gate-node" id="gate-a" data-name="Gate A (North)" data-wait="22 min" data-level="high">
+                <circle cx="400" cy="50" r="14" class="gate-circle pulse-red" />
+                <text x="400" y="54" text-anchor="middle" class="gate-label">A</text>
+              </g>
+              <!-- Gate B (East) -->
+              <g class="map-gate-node" id="gate-b" data-name="Gate B (East)" data-wait="4 min" data-level="low">
+                <circle cx="730" cy="300" r="14" class="gate-circle pulse-green" />
+                <text x="730" y="304" text-anchor="middle" class="gate-label">B</text>
+              </g>
+              <!-- Gate C (South) -->
+              <g class="map-gate-node" id="gate-c" data-name="Gate C (South)" data-wait="11 min" data-level="mid">
+                <circle cx="400" cy="550" r="14" class="gate-circle pulse-yellow" />
+                <text x="400" y="554" text-anchor="middle" class="gate-label">C</text>
+              </g>
+              <!-- Gate D (West) -->
+              <g class="map-gate-node" id="gate-d" data-name="Gate D (West)" data-wait="8 min" data-level="mid">
+                <circle cx="70" cy="300" r="14" class="gate-circle pulse-yellow" />
+                <text x="70" y="304" text-anchor="middle" class="gate-label">D</text>
+              </g>
+
+              <!-- Facility Nodes (Restrooms, Concessions, Transit) -->
+              <g class="facility-node" id="fac-restroom-1" data-name="Concourse A Restrooms" data-status="Crowded (15m wait)">
+                <circle cx="300" cy="140" r="8" class="facility-dot dot-restroom" />
+              </g>
+              <g class="facility-node" id="fac-restroom-2" data-name="Concourse C Restrooms" data-status="Normal (2m wait)">
+                <circle cx="500" cy="460" r="8" class="facility-dot dot-restroom" />
+              </g>
+              <g class="facility-node" id="fac-food-1" data-name="Budweiser Beer Concession" data-status="High (18m queue)">
+                <circle cx="500" cy="140" r="8" class="facility-dot dot-food" />
+              </g>
+              <g class="facility-node" id="fac-food-2" data-name="Taco Arena Concession" data-status="Medium (8m queue)">
+                <circle cx="300" cy="460" r="8" class="facility-dot dot-food" />
+              </g>
+              <!-- Transit Hubs -->
+              <g class="facility-node" id="fac-train" data-name="MetLife Rail Transit Station" data-status="Heavy Boarding Queue">
+                <circle cx="750" cy="100" r="10" class="facility-dot dot-transit" />
+              </g>
+              <g class="facility-node" id="fac-bus" data-name="Stadium Shuttle Terminal" data-status="Regular Service">
+                <circle cx="50" cy="500" r="10" class="facility-dot dot-transit" />
+              </g>
+            </svg>
+
+            <!-- SVG Hover Detail Card -->
+            <div class="map-tooltip" id="map-tooltip">
+              <h4 class="tooltip-title">Sector 104</h4>
+              <div class="tooltip-detail"><span class="label">Capacity:</span> <span class="value" id="tooltip-capacity">98%</span></div>
+              <div class="tooltip-detail"><span class="label">Est. Queue:</span> <span class="value" id="tooltip-wait">24m</span></div>
+            </div>
+          </div>
+
+          <!-- Legend -->
+          <div class="map-legend">
+            <div class="legend-item"><span class="legend-color-box bg-success"></span> Normal (Low Delay)</div>
+            <div class="legend-item"><span class="legend-color-box bg-warning"></span> Moderate Load</div>
+            <div class="legend-item"><span class="legend-color-box bg-danger"></span> High Density / Delay</div>
+            <div class="legend-item"><span class="legend-color-box bg-info-border"></span> Accessibility Route</div>
+            <div class="legend-item"><span class="legend-color-box bg-purple"></span> Facility Node</div>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+
+      <!-- ==================== LEFT PANEL: LIVE EVENT MONITOR FEED ==================== -->
+      <section class="panel-card live-feed-panel">
+        <div class="panel-header">
+          <div class="panel-title-group">
+            <i data-lucide="activity" class="panel-icon icon-cyan"></i>
+            <div>
+              <h2 class="panel-title">Live Event Monitor</h2>
+              <p class="panel-subtitle">Real-time match highlights & stadium status alerts</p>
+            </div>
+          </div>
+          <div class="retro-badge-group">
+            <span class="retro-live-badge blink-text">FEED-LIVE</span>
+          </div>
+        </div>
+        <div class="panel-body feed-body">
+          <div class="feed-monitor-screen" id="live-event-feed-container">
+            <div class="feed-log-line timestamped">
+              <span class="feed-time">15:59</span>
+              <span class="feed-tag tag-system">SYS</span>
+              <span class="feed-text">Vanguard Command Center loaded in retro diagnostic mode. Ticker running.</span>
+            </div>
+            <div class="feed-log-line timestamped">
+              <span class="feed-time">15:59</span>
+              <span class="feed-tag tag-match">GAME</span>
+              <span class="feed-text">74' - Substitution USA: #10 Pulisic OFF, #11 Aaronson ON.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
 
     <!-- ==================== RIGHT PANEL (STAFF OPERATIONS VIEW) ==================== -->
     <section class="panel-card right-panel" id="staff-view-panel">
@@ -410,6 +449,14 @@
                   <option value="106">Sector 106</option>
                   <option value="107">Sector 107</option>
                   <option value="108">Sector 108</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="input-route-pref">AI Optimization Strategy</label>
+                <select id="input-route-pref">
+                  <option value="fastest" selected>⏱️ Fastest Route</option>
+                  <option value="green">🍃 Green Play Path</option>
+                  <option value="accessible">♿ Easy Access Path</option>
                 </select>
               </div>
             </div>

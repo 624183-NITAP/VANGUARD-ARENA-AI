@@ -1855,3 +1855,327 @@ body {
   height: 16px;
 }
 
+/* ==========================================================================
+   RETRO ARCADE THEME OVERRIDES
+   ========================================================================== */
+:root {
+  --font-display: 'VT323', monospace;
+  --font-body: 'Share Tech Mono', monospace;
+  --font-pixel: 'Press Start 2P', monospace;
+
+  /* CRT phosphor retro colors */
+  --bg-deep: #05050c;
+  --bg-pitch: #000000;
+  --bg-card: rgba(8, 10, 22, 0.85);
+  --bg-card-hover: rgba(15, 18, 38, 0.95);
+
+  --neon-cyan: #00f0ff;
+  --neon-blue: #0077ff;
+  --neon-green: #39ff14; /* classic CRT green */
+  --neon-purple: #c000ff;
+  --neon-red: #ff0055;
+  --neon-yellow: #ffb000; /* Amber monitor */
+
+  --text-primary: #a8ffb2; /* subtle green phosphor tint by default */
+  --text-secondary: #7ec286;
+  --text-dim: #4d8c54;
+
+  --border-light: 2px solid var(--neon-cyan);
+  --border-glow: 0 0 8px var(--neon-cyan);
+  
+  --shadow-neon-cyan: 0 0 10px rgba(0, 240, 255, 0.5);
+  --shadow-neon-green: 0 0 10px rgba(57, 255, 20, 0.5);
+  --shadow-neon-red: 0 0 10px rgba(255, 0, 85, 0.5);
+  --shadow-neon-purple: 0 0 10px rgba(192, 0, 255, 0.5);
+}
+
+body {
+  font-family: var(--font-body);
+  animation: crt-flicker 0.25s infinite;
+  text-shadow: 0 0 1px rgba(168, 255, 178, 0.2);
+  background-color: var(--bg-deep);
+}
+
+/* CRT Screen Scanline Effects */
+.crt-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: radial-gradient(circle, rgba(0, 0, 0, 0) 55%, rgba(0, 0, 0, 0.45) 100%),
+              linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.22) 50%);
+  background-size: 100% 100%, 100% 4px;
+  z-index: 999999;
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+.crt-scanline-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 80px;
+  background: linear-gradient(to bottom, rgba(57, 255, 20, 0), rgba(57, 255, 20, 0.04) 50%, rgba(57, 255, 20, 0) 100%);
+  animation: scanline-scroll 8s linear infinite;
+  z-index: 999998;
+  pointer-events: none;
+}
+
+@keyframes scanline-scroll {
+  0% { transform: translateY(-100vh); }
+  100% { transform: translateY(100vh); }
+}
+
+@keyframes crt-flicker {
+  0% { opacity: 0.994; }
+  50% { opacity: 1; }
+  100% { opacity: 0.996; }
+}
+
+/* Headers */
+h1, h2, h3, h4, h5, h6, .panel-title, .card-subtitle-bold {
+  font-family: var(--font-display) !important;
+  font-size: 1.45rem;
+  letter-spacing: 1px;
+}
+.panel-subtitle {
+  font-family: var(--font-body) !important;
+  font-size: 0.85rem;
+}
+
+/* Blocky Retro Cards */
+.panel-card {
+  border: 2px solid var(--neon-cyan) !important;
+  box-shadow: var(--shadow-neon-cyan) !important;
+  border-radius: 8px !important;
+}
+.panel-card:hover {
+  border-color: var(--neon-green) !important;
+  box-shadow: var(--shadow-neon-green) !important;
+}
+
+/* Retro Arcade Buttons */
+.view-switch-btn, .map-control-btn, .glass-btn, .action-btn, .mic-toggle-btn, 
+.send-message-btn, .action-submit-btn, .chip-btn, .btn-incident-solve, .chatbot-toggle-float, .accessibility-float {
+  border: 2px solid var(--neon-cyan) !important;
+  border-radius: 4px !important;
+  font-family: var(--font-body) !important;
+  font-weight: bold;
+  text-transform: uppercase;
+  box-shadow: 3px 3px 0 var(--neon-cyan) !important;
+  transition: transform 0.1s, box-shadow 0.1s;
+  background: rgba(0,0,0,0.6) !important;
+  color: var(--neon-cyan) !important;
+}
+.view-switch-btn:hover, .map-control-btn:hover, .glass-btn:hover, .action-btn:hover, 
+.mic-toggle-btn:hover, .send-message-btn:hover, .action-submit-btn:hover, 
+.chip-btn:hover, .btn-incident-solve:hover, .chatbot-toggle-float:hover, .accessibility-float:hover {
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0 var(--neon-cyan) !important;
+  border-color: var(--neon-green) !important;
+  color: var(--neon-green) !important;
+}
+.view-switch-btn.active, .map-control-btn.active, .fan-tab-btn.active {
+  background: var(--neon-cyan) !important;
+  color: #000 !important;
+  box-shadow: inset 2px 2px 0 rgba(0,0,0,0.5) !important;
+  border-color: var(--neon-cyan) !important;
+}
+
+/* Custom layout overrides */
+.left-column-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-row {
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)) !important;
+}
+
+/* Live Event Monitor Screen */
+.live-feed-panel {
+  border: 2px solid var(--neon-cyan) !important;
+}
+.feed-body {
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.4);
+}
+.feed-monitor-screen {
+  background: #000;
+  border: 2px solid var(--neon-green);
+  border-radius: 6px;
+  padding: 0.75rem;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  height: 180px;
+  overflow-y: auto;
+  color: var(--neon-green);
+  box-shadow: inset 0 0 12px rgba(57, 255, 20, 0.4), 0 0 5px rgba(57, 255, 20, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.feed-log-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  line-height: 1.4;
+  animation: fade-in-step 0.2s ease-out;
+}
+@keyframes fade-in-step {
+  from { opacity: 0; transform: translateX(-5px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.feed-time {
+  color: var(--neon-yellow);
+  font-weight: bold;
+  min-width: 50px;
+}
+.feed-tag {
+  font-size: 0.7rem;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-weight: 800;
+  text-transform: uppercase;
+  min-width: 50px;
+  text-align: center;
+}
+.tag-system {
+  background: rgba(0, 240, 255, 0.2);
+  color: var(--neon-cyan);
+  border: 1px solid var(--neon-cyan);
+}
+.tag-match {
+  background: rgba(255, 0, 85, 0.2);
+  color: var(--neon-red);
+  border: 1px solid var(--neon-red);
+}
+.tag-alert {
+  background: rgba(255, 176, 0, 0.2);
+  color: var(--neon-yellow);
+  border: 1px solid var(--neon-yellow);
+}
+.tag-nav {
+  background: rgba(189, 0, 255, 0.2);
+  color: var(--neon-purple);
+  border: 1px solid var(--neon-purple);
+}
+.feed-text {
+  flex-grow: 1;
+  word-break: break-word;
+}
+.retro-live-badge {
+  background: #ff0055;
+  color: #fff;
+  font-family: var(--font-pixel);
+  font-size: 0.65rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 3px;
+  box-shadow: 0 0 8px #ff0055;
+}
+
+/* Inputs and selectors */
+input[type="text"], select {
+  border: 2px solid var(--neon-cyan) !important;
+  border-radius: 4px !important;
+  background: #000 !important;
+  color: var(--neon-green) !important;
+  font-family: var(--font-body) !important;
+  box-shadow: inset 0 0 6px rgba(0, 240, 255, 0.3) !important;
+  padding: 0.5rem !important;
+}
+input[type="text"]:focus, select:focus {
+  border-color: var(--neon-green) !important;
+  box-shadow: inset 0 0 6px rgba(57, 255, 20, 0.3) !important;
+}
+
+/* Interactive Map Vector Arcade Style */
+.stadium-outer-ring {
+  stroke: var(--neon-cyan) !important;
+  stroke-width: 3px !important;
+  fill: #000 !important;
+}
+.stadium-mid-ring {
+  stroke: rgba(0, 240, 255, 0.3) !important;
+  stroke-dasharray: 6, 6 !important;
+  fill: #020205 !important;
+}
+.stadium-inner-ring {
+  stroke: var(--neon-cyan) !important;
+  stroke-width: 2px !important;
+  fill: #05050d !important;
+}
+.stadium-pitch {
+  stroke: var(--neon-green) !important;
+  stroke-width: 2px !important;
+  fill: #001205 !important;
+  filter: drop-shadow(0 0 8px rgba(57, 255, 20, 0.3)) !important;
+}
+.stadium-sector {
+  stroke: #000000 !important;
+  stroke-width: 4px !important;
+  fill-opacity: 0.5 !important;
+}
+.stadium-sector:hover {
+  stroke: var(--neon-cyan) !important;
+  stroke-width: 3px !important;
+  filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.6)) !important;
+  opacity: 0.95 !important;
+}
+.sector-green { fill: var(--neon-green) !important; }
+.sector-yellow { fill: var(--neon-yellow) !important; }
+.sector-red { fill: var(--neon-red) !important; }
+
+/* Chat logs & Bubbles */
+.chat-bubble {
+  border: 2px solid var(--border-light) !important;
+  border-radius: 4px !important;
+  background: rgba(0,0,0,0.5) !important;
+}
+.ai-bubble {
+  border-color: var(--neon-cyan) !important;
+  box-shadow: 0 0 5px rgba(0, 240, 255, 0.15) !important;
+}
+.user-bubble {
+  border-color: var(--neon-purple) !important;
+  box-shadow: 0 0 5px rgba(189, 0, 255, 0.15) !important;
+}
+
+/* Dispatch incident consoles */
+.glass-panel-inner {
+  border: 2px solid var(--neon-cyan) !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+  border-radius: 6px !important;
+}
+.console-tag {
+  font-family: var(--font-pixel) !important;
+  font-size: 0.6rem;
+  color: var(--neon-yellow);
+}
+
+/* Accessibility Mode Override to disable CRT overlays & audio */
+.accessibility-mode {
+  text-shadow: none !important;
+}
+.accessibility-mode .crt-overlay,
+.accessibility-mode .crt-scanline-bar {
+  display: none !important;
+}
+.accessibility-mode body {
+  animation: none !important;
+  text-shadow: none !important;
+}
+.accessibility-mode .feed-monitor-screen {
+  box-shadow: none !important;
+  background: #000 !important;
+  color: #fff !important;
+  border-color: #fff !important;
+}
+.accessibility-mode .panel-card {
+  box-shadow: none !important;
+}
+
+
