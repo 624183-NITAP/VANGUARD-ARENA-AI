@@ -1011,6 +1011,8 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (err) {
       console.warn("Gemini API call failed for chat. Using local response engine fallback.", err);
       reply = generateGenAIResponse(query);
+      // Introduce simulated latency delay (800ms) for realistic UI processing
+      await new Promise(r => setTimeout(r, 800));
     }
 
     // Remove typing bubble
@@ -1515,6 +1517,8 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (err) {
       console.warn("Gemini API call failed for float chat. Using local fallback.", err);
       reply = generateGenAIResponse(query);
+      // Introduce simulated latency delay (800ms) for realistic UI processing
+      await new Promise(r => setTimeout(r, 800));
     }
 
     typingBubble.remove();
@@ -1608,4 +1612,16 @@ document.addEventListener('DOMContentLoaded', () => {
   <li><strong>Egress Surge Forecast (Next 30m):</strong> Post-match egress will peak at <strong>90+5' (approx. 18 minutes from now)</strong>. Heavy crowd density predicted at <strong>Gate B rail transit platform</strong> (+25 min queuing backlog). Recommending bus lot shuttles or NJ Transit staggering alerts.</li>
 </ul>`;
   }
+
+  // Expose logical helper references for automated testing evaluation
+  window.VanguardOps = {
+    gateCoords,
+    sectorCoords,
+    simulateLocalPredictions,
+    playRetroSound,
+    appendLiveEvent,
+    showToast,
+    drawRoutePath,
+    clearRoutePath
+  };
 });

@@ -1,0 +1,19 @@
+{
+  "name": "vanguard-arena-ai",
+  "version": "1.0.0",
+  "description": "FIFA World Cup 2026 Operations & Concierge Dashboard",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "test": "npm run test:unit && npm run test:e2e",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test",
+    "server": "http-server ./ -p 8000"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "http-server": "^14.1.1",
+    "jsdom": "^23.0.0",
+    "vitest": "^1.0.0"
+  }
+}
