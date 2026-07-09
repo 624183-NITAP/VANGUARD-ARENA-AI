@@ -10,22 +10,25 @@ The application is structured as a client-side Single Page Application (SPA) uti
 
 ```mermaid
 graph TD
-    User([User / Fan / Staff]) -->|Interacts with| UI[Glassmorphic SPA - HTML/CSS/JS]
-    subgraph UI_Components [SPA Dashboard Components]
-        Map[Interactive SVG Arena Map]
-        StaffDashboard[Staff Operations Control]
-        FanHub[Fan Concierge Hub]
-    end
-    UI --> UI_Components
+    User(["User / Fan / Staff"]) -->|Interacts with| UI["Glassmorphic SPA - HTML/CSS/JS"]
     
-    subgraph Services [Application Engines]
-        Router[Wayfinding Router]
-        EcoCalc[Green Play Eco-Calculator]
-        VoiceEng[Voice Engine - Web Speech API STT/TTS]
+    subgraph UI_Components ["SPA Dashboard Components"]
+        Map["Interactive SVG Arena Map"]
+        StaffDashboard["Staff Operations Control"]
+        FanHub["Fan Concierge Hub"]
+    end
+    UI --> Map
+    UI --> StaffDashboard
+    UI --> FanHub
+    
+    subgraph Services ["Application Engines"]
+        Router["Wayfinding Router"]
+        EcoCalc["Green Play Eco-Calculator"]
+        VoiceEng["Voice Engine - Web Speech API STT/TTS"]
     end
     
-    subgraph External_APIs [External APIs]
-        GeminiAPI[Gemini 1.5 Flash API]
+    subgraph External_APIs ["External APIs"]
+        GeminiAPI["Gemini 1.5 Flash API"]
     end
 
     StaffDashboard -->|Query AI Mitigations| GeminiAPI
@@ -47,11 +50,11 @@ Stadium administrators monitor security, network, and facilities. When an incide
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Staff as Stadium Operations Staff
-    participant SPA as Vanguard Arena SPA
-    participant Map as SVG Arena Map
-    participant Gemini as Gemini 1.5 Flash API
-    participant TTS as Web Speech TTS Engine
+    actor Staff as "Stadium Operations Staff"
+    participant SPA as "Vanguard Arena SPA"
+    participant Map as "SVG Arena Map"
+    participant Gemini as "Gemini 1.5 Flash API"
+    participant TTS as "Web Speech TTS Engine"
 
     Staff->>SPA: View Incident Terminal / Create Custom Incident
     SPA->>SPA: Render active incident status (Unresolved)
@@ -69,32 +72,34 @@ Fans query directions, check gate delays, search for concessions, and log transi
 
 ```mermaid
 flowchart TD
-    Start([Fan opens App]) --> SelectFan[Switch to Fan Concierge Hub]
-    SelectFan --> Options{Choose Feature}
+    Start(["Fan opens App"]) --> SelectFan["Switch to Fan Concierge Hub"]
+    SelectFan --> Options{"Choose Feature"}
     
     %% Option A: Chat
-    Options -->|AI Concierge Chat| SelectLang[Select Tournament Language]
-    SelectLang --> InputMethod{Input Method}
-    InputMethod -->|Type| TextIn[Enter Query e.g., seat location, queue status]
-    InputMethod -->|Speak| VoiceIn[Voice input using Web Speech STT]
-    TextIn & VoiceIn --> ChatEngine[Keyword-Aware Chatbot Engine]
-    ChatEngine --> Match[Identify Keywords: seat, gate, transport, accessible]
-    Match --> ContextReply[Formulate contextual, multilingual response]
-    ContextReply --> OutputMethod[Display & Narrate Output via TTS]
+    Options -->|AI Concierge Chat| SelectLang["Select Tournament Language"]
+    SelectLang --> InputMethod{"Input Method"}
+    InputMethod -->|Type| TextIn["Enter Query e.g., seat location, queue status"]
+    InputMethod -->|Speak| VoiceIn["Voice input using Web Speech STT"]
+    TextIn --> ChatEngine["Keyword-Aware Chatbot Engine"]
+    VoiceIn --> ChatEngine
+    ChatEngine --> Match["Identify Keywords: seat, gate, transport, accessible"]
+    Match --> ContextReply["Formulate contextual, multilingual response"]
+    ContextReply --> OutputMethod["Display & Narrate Output via TTS"]
     
     %% Option B: Wayfinding
-    Options -->|Wayfinding Router| InputWay[Enter Gate Entry & Destination Sector]
-    InputWay --> StepFreeCheck{Step-Free / Accessible Ramps Required?}
-    StepFreeCheck -->|Yes| CalcAccessRoute[Calculate Accessible Walkways via Ramp 3]
-    StepFreeCheck -->|No| CalcStandardRoute[Calculate Standard Walkways]
-    CalcAccessRoute & CalcStandardRoute --> DrawMap[Highlight paths on SVG Arena Map]
-    DrawMap --> RenderDirections[Show text directions: Gate -> Escalator/Elevator -> Seat Portal]
+    Options -->|Wayfinding Router| InputWay["Enter Gate Entry & Destination Sector"]
+    InputWay --> StepFreeCheck{"Step-Free / Accessible Ramps Required?"}
+    StepFreeCheck -->|Yes| CalcAccessRoute["Calculate Accessible Walkways via Ramp 3"]
+    StepFreeCheck -->|No| CalcStandardRoute["Calculate Standard Walkways"]
+    CalcAccessRoute --> DrawMap["Highlight paths on SVG Arena Map"]
+    CalcStandardRoute --> DrawMap
+    DrawMap --> RenderDirections["Show text directions: Gate -> Escalator/Elevator -> Seat Portal"]
     
     %% Option C: Green Play
-    Options -->|Green Play Tracker| InputTransit[Select Transit Mode: Metro, Bus, Carpool]
-    InputTransit --> CalculatePoints[Calculate Sustainability Points & Carbon Offsets]
-    CalculatePoints --> QueryEcoTips[Query Gemini API for Custom Eco-Tips]
-    QueryEcoTips --> UpdateProfile[Update Account Balance & Display Tips]
+    Options -->|Green Play Tracker| InputTransit["Select Transit Mode: Metro, Bus, Carpool"]
+    InputTransit --> CalculatePoints["Calculate Sustainability Points & Carbon Offsets"]
+    CalculatePoints --> QueryEcoTips["Query Gemini API for Custom Eco-Tips"]
+    QueryEcoTips --> UpdateProfile["Update Account Balance & Display Tips"]
 ```
 
 ---
