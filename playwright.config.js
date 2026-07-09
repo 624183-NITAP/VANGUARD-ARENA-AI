@@ -24,7 +24,7 @@ export default defineConfig({
     }
   ],
   webServer: {
-    command: 'npx http-server ./ -p 8000',
+    command: 'node server.js',
     url: 'http://localhost:8000',
     reuseExistingServer: true,
     timeout: 10 * 1000

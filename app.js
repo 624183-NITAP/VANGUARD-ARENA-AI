@@ -6,6 +6,74 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize Lucide Icons
   lucide.createIcons();
 
+  // --- SECURITY SANITIZATION & VALIDATION HELPERS ---
+  function escapeHTML(str) {
+    if (typeof str !== 'string') return str;
+    return str.replace(/[&<>'"]/g, 
+      tag => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        "'": '&#39;',
+        '"': '&quot;'
+      }[tag] || tag)
+    );
+  }
+
+  function sanitizeHTML(html) {
+    const template = document.createElement('template');
+    template.innerHTML = html.trim();
+    const doc = template.content;
+    
+    const allowedTags = new Set(['H4', 'P', 'UL', 'LI', 'STRONG', 'SPAN', 'BR', 'I']);
+    const allowedAttrs = {
+      'I': new Set(['data-lucide', 'class']),
+      'SPAN': new Set(['class']),
+      'LI': new Set(['class']),
+    };
+
+    function cleanNode(node) {
+      const children = Array.from(node.childNodes);
+      for (const child of children) {
+        if (child.nodeType === Node.ELEMENT_NODE) {
+          const tagName = child.tagName;
+          if (!allowedTags.has(tagName)) {
+            const textNode = document.createTextNode(child.textContent);
+            node.replaceChild(textNode, child);
+          } else {
+            const attrs = Array.from(child.attributes);
+            const safeAttrs = allowedAttrs[tagName] || new Set();
+            for (const attr of attrs) {
+              if (!safeAttrs.has(attr.name)) {
+                child.removeAttribute(attr.name);
+              }
+            }
+            cleanNode(child);
+          }
+        } else if (child.nodeType !== Node.TEXT_NODE) {
+          node.removeChild(child);
+        }
+      }
+    }
+
+    cleanNode(doc);
+    return doc;
+  }
+
+  function formatChatText(text) {
+    const escaped = escapeHTML(text);
+    return escaped.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  }
+
+  function setHealthStatus(element, text) {
+    if (!element) return;
+    element.innerHTML = '';
+    const dot = document.createElement('span');
+    dot.className = 'pulse-dot';
+    element.appendChild(dot);
+    element.appendChild(document.createTextNode(' ' + text));
+  }
+
   // --- STATE VARIABLES ---
   let currentLanguage = 'en';
   let activeIncidentId = '1';
@@ -112,11 +180,24 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const line = document.createElement('div');
     line.className = 'feed-log-line';
-    line.innerHTML = `
-      <span class="feed-time">${timeStr}</span>
-      <span class="feed-tag tag-${type}">${type}</span>
-      <span class="feed-text">${text}</span>
-    `;
+    
+    const timeSpan = document.createElement('span');
+    timeSpan.className = 'feed-time';
+    timeSpan.textContent = timeStr;
+    
+    const tagSpan = document.createElement('span');
+    tagSpan.className = `feed-tag tag-${type}`;
+    tagSpan.textContent = type;
+    
+    const textSpan = document.createElement('span');
+    textSpan.className = 'feed-text';
+    textSpan.textContent = text;
+    
+    line.appendChild(timeSpan);
+    line.appendChild(document.createTextNode(' '));
+    line.appendChild(tagSpan);
+    line.appendChild(document.createTextNode(' '));
+    line.appendChild(textSpan);
     
     container.appendChild(line);
     container.scrollTop = container.scrollHeight;
@@ -158,10 +239,12 @@ document.addEventListener('DOMContentLoaded', () => {
     toast.innerHTML = `
       <div class="toast-icon"><i data-lucide="${iconName}"></i></div>
       <div class="toast-body">
-        <strong class="toast-title">${title}</strong>
-        <div class="toast-text">${text}</div>
+        <strong class="toast-title"></strong>
+        <div class="toast-text"></div>
       </div>
     `;
+    toast.querySelector('.toast-title').textContent = title;
+    toast.querySelector('.toast-text').textContent = text;
     
     container.appendChild(toast);
     lucide.createIcons();
@@ -202,13 +285,13 @@ document.addEventListener('DOMContentLoaded', () => {
       // AI Confidence
       const aiConf = (99.0 + Math.random() * 0.9).toFixed(2);
       if (healthAI) {
-        healthAI.innerHTML = `<span class="pulse-dot"></span> ${aiConf}% NOMINAL`;
+        setHealthStatus(healthAI, `${aiConf}% NOMINAL`);
       }
       
       // IoT count
       const iotCount = 412 - Math.floor(Math.random() * 3);
       if (healthIoT) {
-        healthIoT.innerHTML = `<span class="pulse-dot"></span> ACTIVE (${iotCount}/412)`;
+        setHealthStatus(healthIoT, `ACTIVE (${iotCount}/412)`);
       }
       
       // CCTV Feed
@@ -216,17 +299,17 @@ document.addEventListener('DOMContentLoaded', () => {
       if (healthCCTV) {
         if (cctvCount < 64) {
           healthCCTV.className = "health-status status-degraded";
-          healthCCTV.innerHTML = `<span class="pulse-dot"></span> DEGRADED (${cctvCount}/64)`;
+          setHealthStatus(healthCCTV, `DEGRADED (${cctvCount}/64)`);
         } else {
           healthCCTV.className = "health-status status-nominal";
-          healthCCTV.innerHTML = `<span class="pulse-dot"></span> ONLINE (64/64)`;
+          setHealthStatus(healthCCTV, "ONLINE (64/64)");
         }
       }
       
       // Weather Station Temp
       const temp = 66 + Math.floor(Math.random() * 4);
       if (healthWeather) {
-        healthWeather.innerHTML = `<span class="pulse-dot"></span> OPEN ROOF (${temp}°F)`;
+        setHealthStatus(healthWeather, `OPEN ROOF (${temp}°F)`);
       }
       
       // Latency
@@ -234,10 +317,10 @@ document.addEventListener('DOMContentLoaded', () => {
       if (healthNetwork) {
         if (latency > 15) {
           healthNetwork.className = "health-status status-degraded";
-          healthNetwork.innerHTML = `<span class="pulse-dot"></span> DEGRADED (5G / ${latency}ms)`;
+          setHealthStatus(healthNetwork, `DEGRADED (5G / ${latency}ms)`);
         } else {
           healthNetwork.className = "health-status status-nominal";
-          healthNetwork.innerHTML = `<span class="pulse-dot"></span> STABLE (5G / ${latency}ms)`;
+          setHealthStatus(healthNetwork, `STABLE (5G / ${latency}ms)`);
         }
       }
     }, 4000);
@@ -247,41 +330,25 @@ document.addEventListener('DOMContentLoaded', () => {
   initAdvancedTelemetryHub();
 
   // --- GEMINI API INTEGRATION ---
-  let GEMINI_API_KEY = localStorage.getItem('GEMINI_API_KEY') || "";
-
   async function queryGemini(systemPrompt, userPrompt) {
-    if (!GEMINI_API_KEY) {
-      const userKey = prompt("Please enter your Gemini API Key to enable real-time AI mitigations and suggestions (this will be saved in your browser's localStorage for this site):");
-      if (userKey && userKey.trim()) {
-        GEMINI_API_KEY = userKey.trim();
-        localStorage.setItem('GEMINI_API_KEY', GEMINI_API_KEY);
-      } else {
-        throw new Error("Gemini API Key is required to run GenAI features.");
-      }
+    if (typeof systemPrompt !== 'string' || typeof userPrompt !== 'string') {
+      throw new Error("Invalid prompt inputs");
     }
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
-    const requestBody = {
-      system_instruction: {
-        parts: [{ text: systemPrompt }]
-      },
-      contents: [
-        {
-          role: "user",
-          parts: [{ text: userPrompt }]
-        }
-      ]
-    };
+    if (systemPrompt.length > 50000 || userPrompt.length > 10000) {
+      throw new Error("Input payload too large");
+    }
 
-    const response = await fetch(url, {
+    const response = await fetch('/api/gemini', {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify(requestBody)
+      body: JSON.stringify({ systemPrompt, userPrompt })
     });
 
     if (!response.ok) {
-      throw new Error(`Gemini API returned ${response.status} ${response.statusText}`);
+      const errText = await response.text();
+      throw new Error(`Server returned ${response.status}: ${errText}`);
     }
 
     const data = await response.json();
@@ -741,8 +808,22 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   async function runIncidentMitigation(id) {
+    if (!id || typeof id !== 'string' || !/^\d+$/.test(id)) {
+      showToast("Validation Error", "Invalid incident identifier.", "warning");
+      return;
+    }
+
     consoleStatusText.textContent = "GenAI computing...";
-    consoleLog.innerHTML = `<div class="console-placeholder-msg"><span class="ticker-live-dot"></span> Generating operational response vector via Gemini 1.5 Flash...</div>`;
+    
+    consoleLog.innerHTML = '';
+    const placeholder = document.createElement('div');
+    placeholder.className = 'console-placeholder-msg';
+    const dot = document.createElement('span');
+    dot.className = 'ticker-live-dot';
+    placeholder.appendChild(dot);
+    placeholder.appendChild(document.createTextNode(' Generating operational response vector via Gemini 1.5 Flash...'));
+    consoleLog.appendChild(placeholder);
+    
     consoleFooter.style.display = 'none';
 
     // Get current incident row details
@@ -768,7 +849,8 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const responseHtml = await queryGemini(systemPrompt, userPrompt);
       consoleStatusText.textContent = "Resolution generated (100% confidence)";
-      consoleLog.innerHTML = responseHtml;
+      consoleLog.innerHTML = '';
+      consoleLog.appendChild(sanitizeHTML(responseHtml));
       consoleFooter.style.display = 'flex';
       playRetroSound('success');
     } catch (err) {
@@ -777,10 +859,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = incidentResolutions[id];
       if (data) {
         consoleStatusText.textContent = "Resolution generated (Local Fallback)";
-        consoleLog.innerHTML = data.resolution;
+        consoleLog.innerHTML = '';
+        consoleLog.appendChild(sanitizeHTML(data.resolution));
       } else {
         consoleStatusText.textContent = "Simulation completed";
-        consoleLog.innerHTML = `<h4>Custom GenAI Response (Fallback)</h4><p>Containment procedures logged. Redirection notices pushed to active fan tickets in near sectors.</p>`;
+        consoleLog.innerHTML = '';
+        consoleLog.appendChild(sanitizeHTML(`<h4>Custom GenAI Response (Fallback)</h4><p>Containment procedures logged. Redirection notices pushed to active fan tickets in near sectors.</p>`));
       }
       consoleFooter.style.display = 'flex';
       playRetroSound('success');
@@ -857,17 +941,24 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="incident-status-bar"></div>
       <div class="incident-details">
         <div class="incident-meta">
-          <span class="badge ${pick.prio === 'high' ? 'badge-danger' : 'badge-warning'}">${pick.badge}</span>
+          <span class="badge"></span>
           <span class="incident-time">Just Now</span>
-          <span class="incident-loc"><i data-lucide="map-pin"></i> ${pick.loc}</span>
+          <span class="incident-loc"><i data-lucide="map-pin"></i> <span></span></span>
         </div>
-        <h3 class="incident-title">${pick.title}</h3>
-        <p class="incident-desc">${pick.desc}</p>
+        <h3 class="incident-title"></h3>
+        <p class="incident-desc"></p>
       </div>
-      <button class="btn-incident-solve" data-incident-id="${id}">
+      <button class="btn-incident-solve">
         Run AI Mitigate <i data-lucide="zap"></i>
       </button>
     `;
+    const badgeEl = row.querySelector('.badge');
+    badgeEl.className = `badge ${pick.prio === 'high' ? 'badge-danger' : 'badge-warning'}`;
+    badgeEl.textContent = pick.badge;
+    row.querySelector('.incident-loc span').textContent = pick.loc;
+    row.querySelector('.incident-title').textContent = pick.title;
+    row.querySelector('.incident-desc').textContent = pick.desc;
+    row.querySelector('.btn-incident-solve').setAttribute('data-incident-id', id);
 
     incidentContainer.insertBefore(row, incidentContainer.firstChild);
     lucide.createIcons();
@@ -935,8 +1026,9 @@ document.addEventListener('DOMContentLoaded', () => {
         <i data-lucide="${sender === 'ai' ? 'cpu' : 'user'}"></i>
         ${confidenceHtml}
       </div>
-      <div class="chat-bubble-text">${text}</div>
+      <div class="chat-bubble-text"></div>
     `;
+    bubble.querySelector('.chat-bubble-text').innerHTML = formatChatText(text);
     chatMessagesLog.appendChild(bubble);
     chatMessagesLog.scrollTop = chatMessagesLog.scrollHeight;
     lucide.createIcons();
@@ -965,8 +1057,12 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   async function submitUserQuery() {
-    const query = chatInput.value.trim();
+    let query = chatInput.value.trim();
     if (!query) return;
+
+    if (query.length > 1000) {
+      query = query.substring(0, 1000);
+    }
 
     appendChatBubble('user', query);
     chatInput.value = '';
@@ -1233,6 +1329,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const accessible = checkboxWheelchair.checked;
     const preference = inputRoutePref.value;
 
+    // Input validation
+    if (!gateCoords[gate] || !sectorCoords[sector]) {
+      showToast("Input Error", "Invalid gate or sector selection.", "warning");
+      return;
+    }
+    const allowedPrefs = ['fastest', 'crowd-avoidance', 'green'];
+    if (!allowedPrefs.includes(preference)) {
+      showToast("Input Error", "Invalid route preference.", "warning");
+      return;
+    }
+
     directionsOutputBox.style.display = 'block';
     directionsStepsList.innerHTML = `
       <li class="direction-step loading-step">
@@ -1276,8 +1383,13 @@ document.addEventListener('DOMContentLoaded', () => {
       result = simulateLocalRouting(gate, sector, accessible, preference);
     }
 
-    directionsOutputBox.querySelector('.route-badge:first-child').innerHTML = `<i data-lucide="clock"></i> ${result.time} min walk`;
-    directionsOutputBox.querySelector('.route-badge:last-child').innerHTML = `<i data-lucide="footprints"></i> ${result.distance} meters`;
+    const clockBadge = directionsOutputBox.querySelector('.route-badge:first-child');
+    clockBadge.innerHTML = `<i data-lucide="clock"></i> <span></span>`;
+    clockBadge.querySelector('span').textContent = `${result.time} min walk`;
+
+    const distBadge = directionsOutputBox.querySelector('.route-badge:last-child');
+    distBadge.innerHTML = `<i data-lucide="footprints"></i> <span></span>`;
+    distBadge.querySelector('span').textContent = `${result.distance} meters`;
 
     directionsStepsList.innerHTML = '';
     
@@ -1285,7 +1397,8 @@ document.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {
         const li = document.createElement('li');
         li.className = 'direction-step';
-        li.innerHTML = `<span class="step-num">${idx + 1}.</span> ${step}`;
+        li.innerHTML = `<span class="step-num">${idx + 1}.</span> <span></span>`;
+        li.querySelector('span').textContent = step;
         directionsStepsList.appendChild(li);
         playRetroSound('boop');
       }, idx * 250);
@@ -1295,7 +1408,8 @@ document.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {
         const li = document.createElement('li');
         li.className = 'direction-step eco-route-tip';
-        li.innerHTML = `<i data-lucide="leaf" class="icon-green"></i> <strong>AI ECO ADVICE:</strong> ${result.ecoTip}`;
+        li.innerHTML = `<i data-lucide="leaf" class="icon-green"></i> <strong>AI ECO ADVICE:</strong> <span></span>`;
+        li.querySelector('span').textContent = result.ecoTip;
         directionsStepsList.appendChild(li);
         lucide.createIcons();
         playRetroSound('success');
@@ -1378,7 +1492,7 @@ document.addEventListener('DOMContentLoaded', () => {
   btnNewEcoTip.addEventListener('click', () => {
     playRetroSound('beep');
     const tip = dynamicEcoTips[Math.floor(Math.random() * dynamicEcoTips.length)];
-    ecoTipBox.innerHTML = `"${tip}"`;
+    ecoTipBox.textContent = `"${tip}"`;
     playRetroSound('success');
     speakAI(tip);
   });
@@ -1388,11 +1502,19 @@ document.addEventListener('DOMContentLoaded', () => {
     playRetroSound('beep');
     document.body.classList.toggle('accessibility-mode');
     if (document.body.classList.contains('accessibility-mode')) {
-      btnAccessibilityMode.innerHTML = `<i data-lucide="eye"></i> Normal Contrast`;
+      btnAccessibilityMode.innerHTML = '';
+      const icon = document.createElement('i');
+      icon.setAttribute('data-lucide', 'eye');
+      btnAccessibilityMode.appendChild(icon);
+      btnAccessibilityMode.appendChild(document.createTextNode(' Normal Contrast'));
       clearRoutePath();
       speakAI("Accessibility mode enabled. Large text and high contrast borders loaded. CRT overlay effects and sound alarms deactivated.");
     } else {
-      btnAccessibilityMode.innerHTML = `<i data-lucide="accessibility"></i> Accessibility Mode`;
+      btnAccessibilityMode.innerHTML = '';
+      const icon = document.createElement('i');
+      icon.setAttribute('data-lucide', 'accessibility');
+      btnAccessibilityMode.appendChild(icon);
+      btnAccessibilityMode.appendChild(document.createTextNode(' Accessibility Mode'));
       speakAI("Returned to standard interface layout.");
     }
     lucide.createIcons();
@@ -1412,11 +1534,19 @@ document.addEventListener('DOMContentLoaded', () => {
     playRetroSound('beep');
     if (chatbotWindow.style.display === 'none') {
       chatbotWindow.style.display = 'flex';
-      btnChatbotToggle.innerHTML = `<i data-lucide="x"></i> Close Chat`;
+      btnChatbotToggle.innerHTML = '';
+      const icon = document.createElement('i');
+      icon.setAttribute('data-lucide', 'x');
+      btnChatbotToggle.appendChild(icon);
+      btnChatbotToggle.appendChild(document.createTextNode(' Close Chat'));
       lucide.createIcons();
     } else {
       chatbotWindow.style.display = 'none';
-      btnChatbotToggle.innerHTML = `<i data-lucide="sparkles"></i> AI Concierge`;
+      btnChatbotToggle.innerHTML = '';
+      const icon = document.createElement('i');
+      icon.setAttribute('data-lucide', 'sparkles');
+      btnChatbotToggle.appendChild(icon);
+      btnChatbotToggle.appendChild(document.createTextNode(' AI Concierge'));
       lucide.createIcons();
     }
   });
@@ -1424,7 +1554,11 @@ document.addEventListener('DOMContentLoaded', () => {
   btnChatbotClose.addEventListener('click', () => {
     playRetroSound('beep');
     chatbotWindow.style.display = 'none';
-    btnChatbotToggle.innerHTML = `<i data-lucide="sparkles"></i> AI Concierge`;
+    btnChatbotToggle.innerHTML = '';
+    const icon = document.createElement('i');
+    icon.setAttribute('data-lucide', 'sparkles');
+    btnChatbotToggle.appendChild(icon);
+    btnChatbotToggle.appendChild(document.createTextNode(' AI Concierge'));
     lucide.createIcons();
   });
 
@@ -1440,11 +1574,10 @@ document.addEventListener('DOMContentLoaded', () => {
       chatbotMessagesFloatLog.innerHTML = `
         <div class="chat-bubble ai-bubble">
           <div class="chat-bubble-avatar"><i data-lucide="cpu"></i></div>
-          <div class="chat-bubble-text">
-            ${chatbotLocales[currentLanguage].welcome}
-          </div>
+          <div class="chat-bubble-text"></div>
         </div>
       `;
+      chatbotMessagesFloatLog.querySelector('.chat-bubble-text').textContent = chatbotLocales[currentLanguage].welcome;
       lucide.createIcons();
     });
   });
@@ -1462,16 +1595,21 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   async function submitFloatUserQuery() {
-    const query = chatbotInputFloat.value.trim();
+    let query = chatbotInputFloat.value.trim();
     if (!query) return;
+
+    if (query.length > 1000) {
+      query = query.substring(0, 1000);
+    }
 
     // Append user bubble to float log
     const userBubble = document.createElement('div');
     userBubble.className = 'chat-bubble user-bubble';
     userBubble.innerHTML = `
       <div class="chat-bubble-avatar"><i data-lucide="user"></i></div>
-      <div class="chat-bubble-text">${query}</div>
+      <div class="chat-bubble-text"></div>
     `;
+    userBubble.querySelector('.chat-bubble-text').textContent = query;
     chatbotMessagesFloatLog.appendChild(userBubble);
     chatbotInputFloat.value = '';
     chatbotMessagesFloatLog.scrollTop = chatbotMessagesFloatLog.scrollHeight;
@@ -1531,8 +1669,9 @@ document.addEventListener('DOMContentLoaded', () => {
         <i data-lucide="cpu"></i>
         <div class="ai-confidence-badge">CONF: ${score}%</div>
       </div>
-      <div class="chat-bubble-text">${reply}</div>
+      <div class="chat-bubble-text"></div>
     `;
+    aiBubble.querySelector('.chat-bubble-text').innerHTML = formatChatText(reply);
     chatbotMessagesFloatLog.appendChild(aiBubble);
     chatbotMessagesFloatLog.scrollTop = chatbotMessagesFloatLog.scrollHeight;
     lucide.createIcons();
@@ -1596,7 +1735,8 @@ document.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {
         predictionsLoader.style.display = 'none';
         predictionsOutputContainer.style.display = 'block';
-        predictionsAiContent.innerHTML = predictionHtml;
+        predictionsAiContent.innerHTML = '';
+        predictionsAiContent.appendChild(sanitizeHTML(predictionHtml));
         playRetroSound('success');
         speakAI("AI crowd prediction and gate recommendation completed.");
         appendLiveEvent('system', "Gemini operational crowd analysis loaded successfully.");
