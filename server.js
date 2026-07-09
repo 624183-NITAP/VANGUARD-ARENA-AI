@@ -1,6 +1,7 @@
 import http from 'http';
 import fs from 'fs';
 import path from 'path';
+import zlib from 'zlib';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -152,14 +153,30 @@ const server = http.createServer(async (req, res) => {
       const ext = path.extname(filePath).toLowerCase();
       const contentType = MIME_TYPES[ext] || 'application/octet-stream';
 
-      res.writeHead(200, { 'Content-Type': contentType });
-      if (req.method === 'HEAD') {
-        res.end();
-        return;
+      const acceptEncoding = req.headers['accept-encoding'] || '';
+      const compressable = ['.html', '.css', '.js', '.json', '.svg'].includes(ext);
+      
+      if (acceptEncoding.includes('gzip') && compressable) {
+        res.writeHead(200, {
+          'Content-Type': contentType,
+          'Content-Encoding': 'gzip'
+        });
+        if (req.method === 'HEAD') {
+          res.end();
+          return;
+        }
+        const stream = fs.createReadStream(filePath);
+        const gzip = zlib.createGzip();
+        stream.pipe(gzip).pipe(res);
+      } else {
+        res.writeHead(200, { 'Content-Type': contentType });
+        if (req.method === 'HEAD') {
+          res.end();
+          return;
+        }
+        const stream = fs.createReadStream(filePath);
+        stream.pipe(res);
       }
-
-      const stream = fs.createReadStream(filePath);
-      stream.pipe(res);
     });
     return;
   }

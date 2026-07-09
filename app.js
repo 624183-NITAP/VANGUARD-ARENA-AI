@@ -115,12 +115,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- DYNAMIC TELEMETRY HUB LOOPS ---
   function initAdvancedTelemetryHub() {
+    // Cache stadium sector DOM references to minimize layout thrashing
+    const sectors = stadiumMap ? stadiumMap.querySelectorAll('.stadium-sector') : [];
+    
     // 1. Dynamic Heatmap Opacity Breathing Loop
     setInterval(() => {
       const isHeatmapActive = stadiumMap.classList.contains('stadium-map-heatmap');
       if (!isHeatmapActive) return;
       
-      const sectors = document.querySelectorAll('.stadium-sector');
       sectors.forEach(sec => {
         const baseOpacity = parseFloat(sec.getAttribute('fill-opacity') || '0.55');
         const delta = (Math.random() - 0.5) * 0.08;
@@ -510,10 +512,21 @@ document.addEventListener('DOMContentLoaded', () => {
     stadiumMap.classList.remove('stadium-map-heatmap', 'stadium-map-accessibility', 'stadium-map-facilities');
   }
 
-  // Map Hover tooltip listener
+  // Cache the map bounding rect and recalibrate only on resize to prevent layout thrashing
+  let cachedMapRect = stadiumMap ? stadiumMap.getBoundingClientRect() : null;
+  window.addEventListener('resize', () => {
+    if (stadiumMap) {
+      cachedMapRect = stadiumMap.getBoundingClientRect();
+    }
+  });
+
+  let tooltipFrameId = null;
+
+  // Map Hover tooltip listener throttled via requestAnimationFrame
   stadiumMap.addEventListener('mousemove', (e) => {
     const target = e.target.closest('.stadium-sector, .map-gate');
     if (!target) {
+      if (tooltipFrameId) cancelAnimationFrame(tooltipFrameId);
       mapTooltip.style.display = 'none';
       return;
     }
@@ -521,21 +534,31 @@ document.addEventListener('DOMContentLoaded', () => {
     const id = target.getAttribute('data-id') || target.getAttribute('id');
     const capacity = target.getAttribute('data-capacity') || "N/A";
     const wait = target.getAttribute('data-wait') || "N/A";
+    const clientX = e.clientX;
+    const clientY = e.clientY;
     
-    tooltipCapacity.textContent = capacity;
-    tooltipWait.textContent = wait;
-    mapTooltip.querySelector('.tooltip-title').textContent = id;
+    if (tooltipFrameId) cancelAnimationFrame(tooltipFrameId);
     
-    // Position coordinates
-    mapTooltip.style.display = 'block';
-    const rect = stadiumMap.getBoundingClientRect();
-    const x = e.clientX - rect.left + 15;
-    const y = e.clientY - rect.top + 15;
-    mapTooltip.style.left = `${x}px`;
-    mapTooltip.style.top = `${y}px`;
+    tooltipFrameId = requestAnimationFrame(() => {
+      tooltipCapacity.textContent = capacity;
+      tooltipWait.textContent = wait;
+      const titleEl = mapTooltip.querySelector('.tooltip-title');
+      if (titleEl) titleEl.textContent = id;
+      
+      mapTooltip.style.display = 'block';
+      if (!cachedMapRect && stadiumMap) {
+        cachedMapRect = stadiumMap.getBoundingClientRect();
+      }
+      const rect = cachedMapRect || { left: 0, top: 0 };
+      const x = clientX - rect.left + 15;
+      const y = clientY - rect.top + 15;
+      mapTooltip.style.left = `${x}px`;
+      mapTooltip.style.top = `${y}px`;
+    });
   });
 
   stadiumMap.addEventListener('mouseleave', () => {
+    if (tooltipFrameId) cancelAnimationFrame(tooltipFrameId);
     mapTooltip.style.display = 'none';
   });
 
