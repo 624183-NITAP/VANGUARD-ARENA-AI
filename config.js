@@ -28,9 +28,10 @@ export const incidentResolutions = {
     resolution: `<h4>GenAI Security Operations Action Plan</h4>
 <ul>
   <li><strong>Immediate Recommendation:</strong> Divert Gate A incoming queues to adjacent Gate B (East) and Gate D (West). Gate B currently has a low wait time of 4m.</li>
-  <li><strong>Digital Alert:</strong> Push real-time alert notification to ticket holders in Sectors 101, 107, and 108 advising them of the detour.</li>
+  <li><strong>AI Decision Explanation:</strong> Turnstile scan rates at Gate A dropped by 80% due to switch port drops. Staggering ingress prevents crowd crush hazards and stabilizes concourse pressure.</li>
+  <li><strong>Measurable Outcome:</strong> Redirection reduces peak Gate A queue delay from **22 minutes down to 8 minutes** (64% reduction).</li>
   <li><strong>Staff Reallocation:</strong> Auto-matching 4 volunteers closest to Sector 108 (Zone A Concourse) to dispatch as mobile ticket checkers.</li>
-  <li><strong>System Recovery:</strong> GenAI network monitor detects a local switch port freeze. Recommended technical step: Re-route traffic to redundant backup cellular network router (Cellular WAN #2).</li>
+  <li><strong>System Recovery:</strong> Technical failover to Cellular WAN #2 completed, restoring turnstile scanner traffic in **&lt; 3 minutes**.</li>
 </ul>`
   },
   '2': {
@@ -39,9 +40,10 @@ export const incidentResolutions = {
     resolution: `<h4>GenAI Operations Crowd Mitigation Plan</h4>
 <ul>
   <li><strong>Restroom Rerouting:</strong> Direct Concourse 104 guests to Concourse 103 restrooms (only 50m away, 1m queue wait time).</li>
+  <li><strong>AI Decision Explanation:</strong> Sector 104 bathroom lines exceeded critical 15m limits, while Sector 103 remained underloaded. Shifting flow early balances facility utilization.</li>
+  <li><strong>Measurable Outcome:</strong> Balances facility queue loads, bringing restroom wait times from **15 minutes down to 2 minutes** (86% delay reduction).</li>
   <li><strong>Dynamic Signage:</strong> Automatically update overhead digital monitors at Sector 104 entry to show "Green Status: Bathrooms Open in Sector 103".</li>
   <li><strong>Volunteer Dispatch:</strong> Alert closest volunteers (ID 208, 104) to direct human traffic away from the Sector 104 access ramps.</li>
-  <li><strong>Telemetry Update:</strong> Queue sensors calibrated. Re-routing queue load will reduce Sector 104 backlog below 5 minutes in approximately 6 minutes.</li>
 </ul>`
   }
 };
@@ -266,21 +268,27 @@ export const fallbackLocales = {
 export const customIncidentsList = [
   { badge: "IoT Surge", loc: "Concourse Sec 103", prio: "warning", title: "CCTV Concourse Switch Packet Collision", desc: "Abnormal UDP multicast storm from smart turnstile hubs saturating visual feed buffers.", sol: `<h4>GenAI Network Recovery Protocol</h4>
 <ul>
-  <li><strong>Broadcast Restriction:</strong> Dispatch volunteer leads to execute physical IGMP snooping triggers on Local Switch Port 12.</li>
+  <li><strong>Immediate Recommendation:</strong> Execute physical IGMP snooping triggers on Local Switch Port 12 to filter multicast loops.</li>
+  <li><strong>AI Decision Explanation:</strong> Packet loss rates spiked to 14.2% causing CCTV frames drop. Restricting multicast bandwidth preserves security visibility without interrupting ticket scanning.</li>
+  <li><strong>Measurable Outcome:</strong> Restores visual feed sync within **12 seconds**; packet drop rate reduced to **0.01%**.</li>
   <li><strong>Bandwidth Containment:</strong> Apply stadium WAN traffic shaping to throttle smart turnstile streaming down to 2Mbps.</li>
   <li><strong>Local Routing Detour:</strong> Force visual loops to fail over to wireless visual backup system Sec 103-B.</li>
 </ul>` },
   { badge: "Logistics", loc: "Access Road North", prio: "warning", title: "Team Shuttle Escort Delays", desc: "VIP transport lanes blocked by NJ Transit bus parking overflow at North checkpoint.", sol: `<h4>GenAI Logistics Recovery Plan</h4>
 <ul>
-  <li><strong>Escort Realignment: NJ State Police escort advised to switch team transport vehicles to Emergency Lane #3.</strong></li>
-  <li><strong>Traffic Staggering: NJ Transit bus arrivals paused for 4 minutes to vent the highway access bottlenecks.</strong></li>
-  <li><strong>Gate Diverting: Redirect fan pedestrian crosswalk paths to Gate D bypass overhead ramp.</strong></li>
+  <li><strong>Immediate Recommendation:</strong> Realign NJ State Police escort to switch team transport vehicles to Emergency Lane #3.</li>
+  <li><strong>AI Decision Explanation:</strong> Gridlock at North checkpoint threatened kick-off timings. Prioritizing emergency lane clearance bypasses general transit congestion.</li>
+  <li><strong>Measurable Outcome:</strong> Safe shuttle passage secured in **4 minutes**; kick-off schedule delay risk reduced to **0%**.</li>
+  <li><strong>Traffic Staggering:</strong> Pause NJ Transit bus arrivals for 4 minutes to vent the highway access bottlenecks.</li>
+  <li><strong>Gate Diverting:</strong> Redirect fan pedestrian crosswalk paths to Gate D bypass overhead ramp.</li>
 </ul>` },
   { badge: "Severe Weather", loc: "MetLife Roof Gantry", prio: "high", title: "Lightning Warning (8-Mile Perimeter)", desc: "National Weather Service indicates active electrical cells moving South-East. Roof retraction required.", sol: `<h4>Severe Weather Containment Matrix</h4>
 <ul>
-  <li><strong>Mechanical Actuation: RETRACT STADIUM ROOF IMMEDIATELY (Approx. 11 minutes total cycle completion).</strong></li>
-  <li><strong>Concourse Shelter Directive: Disseminate PA alerts advising fans in open-air upper decks to seek refuge inside lower concourses.</strong></li>
-  <li><strong>Staff Reallocation: Direct outdoor field perimeter security personnel to report to indoor shelter zones.</strong></li>
+  <li><strong>Immediate Recommendation:</strong> RETRACT STADIUM ROOF IMMEDIATELY (Approx. 11 minutes total cycle completion).</li>
+  <li><strong>AI Decision Explanation:</strong> Lightning strikes within 8 miles present critical threat to open upper decks. Initiating mechanical roof retraction secures interior seating bowl.</li>
+  <li><strong>Measurable Outcome:</strong> Full stadium canopy coverage completed in **11 minutes**; 100% of open-deck fans sheltered.</li>
+  <li><strong>Concourse Shelter Directive:</strong> Disseminate PA alerts advising fans in open-air upper decks to seek refuge inside lower concourses.</li>
+  <li><strong>Staff Reallocation:</strong> Direct outdoor field perimeter security personnel to report to indoor shelter zones.</li>
 </ul>` }
 ];
 

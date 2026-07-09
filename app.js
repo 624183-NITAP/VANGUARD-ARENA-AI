@@ -1234,9 +1234,11 @@ document.addEventListener('DOMContentLoaded', () => {
   function simulateLocalPredictions() {
     return `<h4>GenAI Operations Strategy Recommendation</h4>
 <ul>
-  <li><strong>Optimal Gate Recommendation:</strong> Direct all incoming pedestrian corridors to <strong>Gate B (East)</strong> (4m wait) and <strong>Gate D (West)</strong> (8m wait). Staggered Gate A closures should continue until scanner WAN switch recovery completes.</li>
-  <li><strong>Concessions & Facilities Rerouting:</strong> Alert fans in Sector 104 to proceed to <strong>Sector 102/103 restroom facilities</strong> (2m wait vs 15m wait at 104). Reroute beer demand from Sector 104 stand to Sector 105 Taco & Beer counter (wait differential: 10 mins saved).</li>
-  <li><strong>Egress Surge Forecast (Next 30m):</strong> Post-match egress will peak at <strong>90+5' (approx. 18 minutes from now)</strong>. Heavy crowd density predicted at <strong>Gate B rail transit platform</strong> (+25 min queuing backlog). Recommending bus lot shuttles or NJ Transit staggering alerts.</li>
+  <li><strong>Optimal Gate Recommendation:</strong> Direct all incoming pedestrian corridors to <strong>Gate B (East)</strong> (4m wait) and <strong>Gate D (West)</strong> (8m wait). Staggered Gate A closures should continue.</li>
+  <li><strong>AI Decision Explanation:</strong> Redirection spreads the 82,300 crowd across low-wait entryways, avoiding choke points at offline scanning turnstiles.</li>
+  <li><strong>Measurable Outcome:</strong> Average ingress throughput increases by **420 fans/minute**, reducing total stadium filling time by **18 minutes**.</li>
+  <li><strong>Concessions & Facilities Rerouting:</strong> Alert fans in Sector 104 to proceed to <strong>Sector 102/103 restrooms</strong> (2m wait vs 15m at 104) and Sector 105 concessions (10 mins saved).</li>
+  <li><strong>Egress Surge Forecast (Next 30m):</strong> Post-match egress will peak at <strong>90+5' (approx. 18 minutes from now)</strong>. Recommending bus lot shuttle activation to buffer NJ Transit queue backlogs.</li>
 </ul>`;
   }
 
