@@ -15,6 +15,8 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <!-- Skip to Main Content Link -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
 
   <!-- CRT Screen Overlay & Scanlines -->
   <div class="crt-overlay"></div>
@@ -115,7 +117,7 @@
         <div class="panel-body map-body-container">
           <!-- SVG Stadium Map -->
           <div class="stadium-svg-wrapper">
-            <svg viewBox="0 0 800 600" class="stadium-svg" id="stadium-map">
+            <svg viewBox="0 0 800 600" class="stadium-svg" id="stadium-map" role="img" aria-label="Interactive MetLife Stadium Seating Map and Overlays">
               <defs>
                 <radialGradient id="pitch-glow" cx="50%" cy="50%" r="50%">
                   <stop offset="0%" stop-color="#10b981" stop-opacity="0.2"/>
@@ -386,25 +388,25 @@
       </div>
 
       <!-- Tab Layout for Fan Views -->
-      <div class="fan-tabs">
-        <button class="fan-tab-btn active" id="tab-btn-assistant">
-          <i data-lucide="message-square-code"></i> AI Concierge Assistant
+      <div class="fan-tabs" role="tablist" aria-label="Fan Hub Panels">
+        <button class="fan-tab-btn active" id="tab-btn-assistant" role="tab" aria-selected="true" aria-controls="fan-tab-assistant">
+          <i data-lucide="message-square-code" aria-hidden="true"></i> AI Concierge Assistant
         </button>
-        <button class="fan-tab-btn" id="tab-btn-navigation">
-          <i data-lucide="navigation"></i> Wayfinder & Queues
+        <button class="fan-tab-btn" id="tab-btn-navigation" role="tab" aria-selected="false" aria-controls="fan-tab-navigation">
+          <i data-lucide="navigation" aria-hidden="true"></i> Wayfinder & Queues
         </button>
-        <button class="fan-tab-btn" id="tab-btn-sustainability">
-          <i data-lucide="leaf"></i> Green Play Tracker
+        <button class="fan-tab-btn" id="tab-btn-sustainability" role="tab" aria-selected="false" aria-controls="fan-tab-sustainability">
+          <i data-lucide="leaf" aria-hidden="true"></i> Green Play Tracker
         </button>
-        <button class="fan-tab-btn" id="tab-btn-predictions">
-          <i data-lucide="brain-circuit"></i> AI Predictions & Recs
+        <button class="fan-tab-btn" id="tab-btn-predictions" role="tab" aria-selected="false" aria-controls="fan-tab-predictions">
+          <i data-lucide="brain-circuit" aria-hidden="true"></i> AI Predictions & Recs
         </button>
       </div>
 
       <!-- FAN PANEL TABS CONTENT -->
       
       <!-- SUB-TAB 1: AI Concierge Chat -->
-      <div class="fan-tab-content active-tab-content" id="fan-tab-assistant">
+      <div class="fan-tab-content active-tab-content" id="fan-tab-assistant" role="tabpanel" aria-labelledby="tab-btn-assistant" tabindex="0">
         <!-- Multilingual Selectors -->
         <div class="language-bar">
           <span class="lang-title">Choose Language:</span>
@@ -444,19 +446,19 @@
 
           <!-- Chat Input -->
           <div class="chat-input-area">
-            <button class="mic-toggle-btn" id="btn-chat-mic" title="Voice Input (STT)">
-              <i data-lucide="mic"></i>
+            <button class="mic-toggle-btn" id="btn-chat-mic" title="Voice Input (STT)" aria-label="Voice Input Speech-to-Text">
+              <i data-lucide="mic" aria-hidden="true"></i>
             </button>
-            <input type="text" id="chat-input" placeholder="Type a message or ask stadium questions..." autocomplete="off">
-            <button class="send-message-btn" id="btn-chat-send">
-              <i data-lucide="send"></i>
+            <input type="text" id="chat-input" placeholder="Type a message or ask stadium questions..." autocomplete="off" aria-label="Fan concierge chatbot input">
+            <button class="send-message-btn" id="btn-chat-send" aria-label="Send message">
+              <i data-lucide="send" aria-hidden="true"></i>
             </button>
           </div>
         </div>
       </div>
 
       <!-- SUB-TAB 2: Seat Wayfinder & Queues -->
-      <div class="fan-tab-content" id="fan-tab-navigation">
+      <div class="fan-tab-content" id="fan-tab-navigation" role="tabpanel" aria-labelledby="tab-btn-navigation" tabindex="0">
         <div class="navigation-card-body">
           <h3 class="card-subtitle-bold"><i data-lucide="navigation"></i> Seat Wayfinding Routing</h3>
           <div class="route-form">
@@ -550,7 +552,7 @@
       </div>
 
       <!-- SUB-TAB 3: Green Play Sustainability Tracker -->
-      <div class="fan-tab-content" id="fan-tab-sustainability">
+      <div class="fan-tab-content" id="fan-tab-sustainability" role="tabpanel" aria-labelledby="tab-btn-sustainability" tabindex="0">
         <div class="sustainability-body">
           <div class="eco-status-box glass-panel-inner">
             <div class="eco-radial-progress">
@@ -599,7 +601,7 @@
       </div>
 
       <!-- SUB-TAB 4: AI Predictions & Recommendations -->
-      <div class="fan-tab-content" id="fan-tab-predictions">
+      <div class="fan-tab-content" id="fan-tab-predictions" role="tabpanel" aria-labelledby="tab-btn-predictions" tabindex="0">
         <div class="predictions-body">
           <div class="predictions-header-card glass-panel-inner">
             <div class="console-tag"><i data-lucide="brain"></i> GEMINI COGNITIVE MODELLING</div>
@@ -658,47 +660,47 @@
   </main>
 
   <!-- Global Accessibility Floating Action Button -->
-  <button class="accessibility-float" id="btn-accessibility-mode" title="Toggle Accessibility Features">
-    <i data-lucide="accessibility"></i> Accessibility Mode
+  <button class="accessibility-float" id="btn-accessibility-mode" title="Toggle Accessibility Features" aria-pressed="false">
+    <i data-lucide="accessibility" aria-hidden="true"></i> Accessibility Mode
   </button>
 
   <!-- Floating AI Chatbot Toggle Button -->
-  <button class="chatbot-toggle-float" id="btn-chatbot-toggle" title="Open AI Assistant">
-    <i data-lucide="sparkles"></i> AI Concierge
+  <button class="chatbot-toggle-float" id="btn-chatbot-toggle" title="Open AI Assistant" aria-label="Open AI Assistant Chat Window" aria-expanded="false" aria-haspopup="dialog">
+    <i data-lucide="sparkles" aria-hidden="true"></i> AI Concierge
   </button>
 
   <!-- Floating AI Chatbot Window -->
-  <div class="chatbot-window-float" id="chatbot-window" style="display: none;">
+  <div class="chatbot-window-float" id="chatbot-window" style="display: none;" role="dialog" aria-label="AI Concierge chatbot dialog">
     <div class="chatbot-window-header">
       <div class="chatbot-header-title">
-        <i data-lucide="cpu" class="icon-purple"></i>
+        <i data-lucide="cpu" class="icon-purple" aria-hidden="true"></i>
         <span>Vanguard AI Concierge</span>
         <span class="online-indicator"></span>
       </div>
-      <button class="chatbot-close-btn" id="btn-chatbot-close">
-        <i data-lucide="x"></i>
+      <button class="chatbot-close-btn" id="btn-chatbot-close" aria-label="Close AI Assistant Chat Window">
+        <i data-lucide="x" aria-hidden="true"></i>
       </button>
     </div>
     
     <!-- Floating Language Bar -->
-    <div class="language-bar-float">
-      <button class="lang-btn-float active" data-lang="en">EN</button>
-      <button class="lang-btn-float" data-lang="es">ES</button>
-      <button class="lang-btn-float" data-lang="pt">PT</button>
-      <button class="lang-btn-float" data-lang="de">DE</button>
-      <button class="lang-btn-float" data-lang="fr">FR</button>
-      <button class="lang-btn-float" data-lang="it">IT</button>
-      <button class="lang-btn-float" data-lang="ar">AR</button>
-      <button class="lang-btn-float" data-lang="ja">JA</button>
-      <button class="lang-btn-float" data-lang="zh">ZH</button>
-      <button class="lang-btn-float" data-lang="hi">HI</button>
-      <button class="lang-btn-float" data-lang="ko">KO</button>
+    <div class="language-bar-float" role="toolbar" aria-label="Floating chatbot language selector buttons">
+      <button class="lang-btn-float active" data-lang="en" aria-label="English">EN</button>
+      <button class="lang-btn-float" data-lang="es" aria-label="Spanish">ES</button>
+      <button class="lang-btn-float" data-lang="pt" aria-label="Portuguese">PT</button>
+      <button class="lang-btn-float" data-lang="de" aria-label="German">DE</button>
+      <button class="lang-btn-float" data-lang="fr" aria-label="French">FR</button>
+      <button class="lang-btn-float" data-lang="it" aria-label="Italian">IT</button>
+      <button class="lang-btn-float" data-lang="ar" aria-label="Arabic">AR</button>
+      <button class="lang-btn-float" data-lang="ja" aria-label="Japanese">JA</button>
+      <button class="lang-btn-float" data-lang="zh" aria-label="Chinese">ZH</button>
+      <button class="lang-btn-float" data-lang="hi" aria-label="Hindi">HI</button>
+      <button class="lang-btn-float" data-lang="ko" aria-label="Korean">KO</button>
     </div>
     
     <!-- Floating Messages Log -->
-    <div class="chatbot-messages-float" id="chatbot-messages-float-log">
+    <div class="chatbot-messages-float" id="chatbot-messages-float-log" aria-live="polite">
       <div class="chat-bubble ai-bubble">
-        <div class="chat-bubble-avatar"><i data-lucide="cpu"></i></div>
+        <div class="chat-bubble-avatar"><i data-lucide="cpu" aria-hidden="true"></i></div>
         <div class="chat-bubble-text">
           Welcome! I am connected to Gemini 1.5 Flash. Ask me about seats, restrooms, concessions, transit, or security.
         </div>
@@ -707,12 +709,15 @@
     
     <!-- Floating Input Area -->
     <div class="chatbot-input-area-float">
-      <input type="text" id="chatbot-input-float" placeholder="Ask Vanguard AI..." autocomplete="off">
-      <button class="chatbot-send-btn-float" id="btn-chatbot-send-float">
-        <i data-lucide="send"></i>
+      <input type="text" id="chatbot-input-float" placeholder="Ask Vanguard AI..." autocomplete="off" aria-label="Floating AI Concierge chatbot input">
+      <button class="chatbot-send-btn-float" id="btn-chatbot-send-float" aria-label="Send float chat query">
+        <i data-lucide="send" aria-hidden="true"></i>
       </button>
     </div>
   </div>
+
+  <!-- Screen Reader Announcements Container -->
+  <div id="accessibility-announcer" class="sr-only" aria-live="polite"></div>
 
   <!-- Script Imports -->
   <script type="module" src="app.js"></script>

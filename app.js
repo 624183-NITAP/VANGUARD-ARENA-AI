@@ -113,6 +113,40 @@ document.addEventListener('DOMContentLoaded', () => {
   const predictionsAiContent = document.getElementById('predictions-ai-content');
   const predictionsStatusText = document.getElementById('predictions-status-text');
 
+  // --- SCREEN READER ANNOUNCER ---
+  function announceSR(text) {
+    const announcer = document.getElementById('accessibility-announcer');
+    if (announcer) {
+      announcer.textContent = '';
+      setTimeout(() => {
+        announcer.textContent = text;
+      }, 50);
+    }
+  }
+
+  // --- STADIUM SVG KEYBOARD ACCESSIBILITY OVERRIDES ---
+  if (stadiumMap) {
+    const sectors = stadiumMap.querySelectorAll('.stadium-sector');
+    sectors.forEach(sec => {
+      const id = sec.getAttribute('id') || sec.getAttribute('data-id') || sec.getAttribute('data-name') || 'Sector';
+      const cap = sec.getAttribute('data-capacity') || 'N/A';
+      const wait = sec.getAttribute('data-wait') || 'N/A';
+      sec.setAttribute('tabindex', '0');
+      sec.setAttribute('role', 'img');
+      sec.setAttribute('aria-label', `${id}. Capacity: ${cap}. Wait Time: ${wait}.`);
+    });
+
+    const gates = stadiumMap.querySelectorAll('.map-gate');
+    gates.forEach(gate => {
+      const id = gate.getAttribute('id') || gate.getAttribute('data-id') || 'Gate';
+      const cap = gate.getAttribute('data-capacity') || 'N/A';
+      const wait = gate.getAttribute('data-wait') || 'N/A';
+      gate.setAttribute('tabindex', '0');
+      gate.setAttribute('role', 'img');
+      gate.setAttribute('aria-label', `${id}. Capacity: ${cap}. Wait Time: ${wait}.`);
+    });
+  }
+
   // --- DYNAMIC TELEMETRY HUB LOOPS ---
   function initAdvancedTelemetryHub() {
     // Cache stadium sector DOM references to minimize layout thrashing
@@ -465,15 +499,20 @@ document.addEventListener('DOMContentLoaded', () => {
   btnStaffView.addEventListener('click', () => {
     playRetroSound('beep');
     btnStaffView.classList.add('active');
+    btnStaffView.setAttribute('aria-pressed', 'true');
     btnFanView.classList.remove('active');
+    btnFanView.setAttribute('aria-pressed', 'false');
     staffViewPanel.classList.remove('hidden-panel');
     fanViewPanel.classList.add('hidden-panel');
+    announceSR("Switched to Operations Control Panel.");
   });
 
   btnFanView.addEventListener('click', () => {
     playRetroSound('beep');
     btnFanView.classList.add('active');
+    btnFanView.setAttribute('aria-pressed', 'true');
     btnStaffView.classList.remove('active');
+    btnStaffView.setAttribute('aria-pressed', 'false');
     fanViewPanel.classList.remove('hidden-panel');
     staffViewPanel.classList.add('hidden-panel');
     
@@ -481,6 +520,7 @@ document.addEventListener('DOMContentLoaded', () => {
     clearChatLog();
     const welcomeMsg = chatbotLocales[currentLanguage].welcome;
     appendChatBubble('ai', welcomeMsg);
+    announceSR("Switched to Fan Concierge Hub.");
   });
 
   // --- SVG MAP OVERLAY STYLING ---
@@ -488,27 +528,36 @@ document.addEventListener('DOMContentLoaded', () => {
     playRetroSound('beep');
     clearMapClasses();
     mapBtnHeatmap.classList.add('active');
+    mapBtnHeatmap.setAttribute('aria-pressed', 'true');
     stadiumMap.classList.add('stadium-map-heatmap');
+    announceSR("Stadium map overlay set to Heatmap view.");
   });
 
   mapBtnAccessibility.addEventListener('click', () => {
     playRetroSound('beep');
     clearMapClasses();
     mapBtnAccessibility.classList.add('active');
+    mapBtnAccessibility.setAttribute('aria-pressed', 'true');
     stadiumMap.classList.add('stadium-map-accessibility');
+    announceSR("Stadium map overlay set to Accessible Paths view.");
   });
 
   mapBtnFacilities.addEventListener('click', () => {
     playRetroSound('beep');
     clearMapClasses();
     mapBtnFacilities.classList.add('active');
+    mapBtnFacilities.setAttribute('aria-pressed', 'true');
     stadiumMap.classList.add('stadium-map-facilities');
+    announceSR("Stadium map overlay set to Restrooms and Concessions view.");
   });
 
   function clearMapClasses() {
     mapBtnHeatmap.classList.remove('active');
     mapBtnAccessibility.classList.remove('active');
     mapBtnFacilities.classList.remove('active');
+    mapBtnHeatmap.setAttribute('aria-pressed', 'false');
+    mapBtnAccessibility.setAttribute('aria-pressed', 'false');
+    mapBtnFacilities.setAttribute('aria-pressed', 'false');
     stadiumMap.classList.remove('stadium-map-heatmap', 'stadium-map-accessibility', 'stadium-map-facilities');
   }
 
@@ -757,6 +806,7 @@ document.addEventListener('DOMContentLoaded', () => {
     playRetroSound('beep');
     const gate = inputGate.value;
     const sector = inputSector.value;
+    announceSR(`Calculating optimal route path from ${gate} to Sector ${sector}...`);
     const accessible = checkboxWheelchair.checked;
     const preference = inputRoutePref.value;
 
@@ -852,6 +902,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     lucide.createIcons();
     speakAI(`Optimal path generated: ${result.time} minutes walk.`, currentLanguage);
+    announceSR(`Optimal route calculated: ${result.time} minutes walk, ${result.distance} meters. Detailed directions loaded in wayfinding panel.`);
   });
 
   function simulateLocalRouting(gate, sector, accessible, preference) {
@@ -942,6 +993,7 @@ document.addEventListener('DOMContentLoaded', () => {
     playRetroSound('beep');
     document.body.classList.toggle('accessibility-mode');
     if (document.body.classList.contains('accessibility-mode')) {
+      btnAccessibilityMode.setAttribute('aria-pressed', 'true');
       btnAccessibilityMode.innerHTML = '';
       const icon = document.createElement('i');
       icon.setAttribute('data-lucide', 'eye');
@@ -949,13 +1001,16 @@ document.addEventListener('DOMContentLoaded', () => {
       btnAccessibilityMode.appendChild(document.createTextNode(' Normal Contrast'));
       clearRoutePath();
       speakAI("Accessibility mode enabled. Large text and high contrast borders loaded. CRT overlay effects and sound alarms deactivated.", 'en');
+      announceSR("Accessibility high contrast mode activated. Layout animations and CRT screen effects have been disabled.");
     } else {
+      btnAccessibilityMode.setAttribute('aria-pressed', 'false');
       btnAccessibilityMode.innerHTML = '';
       const icon = document.createElement('i');
       icon.setAttribute('data-lucide', 'accessibility');
       btnAccessibilityMode.appendChild(icon);
       btnAccessibilityMode.appendChild(document.createTextNode(' Accessibility Mode'));
       speakAI("Returned to standard interface layout.", 'en');
+      announceSR("Accessibility high contrast mode deactivated.");
     }
     lucide.createIcons();
   });
@@ -965,32 +1020,40 @@ document.addEventListener('DOMContentLoaded', () => {
     playRetroSound('beep');
     if (chatbotWindow.style.display === 'none') {
       chatbotWindow.style.display = 'flex';
+      btnChatbotToggle.setAttribute('aria-expanded', 'true');
       btnChatbotToggle.innerHTML = '';
       const icon = document.createElement('i');
       icon.setAttribute('data-lucide', 'x');
       btnChatbotToggle.appendChild(icon);
       btnChatbotToggle.appendChild(document.createTextNode(' Close Chat'));
       lucide.createIcons();
+      chatbotInputFloat.focus();
+      announceSR("AI Concierge chatbot window opened. Focus shifted to chatbot input field.");
     } else {
       chatbotWindow.style.display = 'none';
+      btnChatbotToggle.setAttribute('aria-expanded', 'false');
       btnChatbotToggle.innerHTML = '';
       const icon = document.createElement('i');
       icon.setAttribute('data-lucide', 'sparkles');
       btnChatbotToggle.appendChild(icon);
       btnChatbotToggle.appendChild(document.createTextNode(' AI Concierge'));
       lucide.createIcons();
+      announceSR("AI Concierge chatbot window closed.");
     }
   });
 
   btnChatbotClose.addEventListener('click', () => {
     playRetroSound('beep');
     chatbotWindow.style.display = 'none';
+    btnChatbotToggle.setAttribute('aria-expanded', 'false');
     btnChatbotToggle.innerHTML = '';
     const icon = document.createElement('i');
     icon.setAttribute('data-lucide', 'sparkles');
     btnChatbotToggle.appendChild(icon);
     btnChatbotToggle.appendChild(document.createTextNode(' AI Concierge'));
     lucide.createIcons();
+    btnChatbotToggle.focus();
+    announceSR("AI Concierge chatbot window closed. Focus returned to chat toggle button.");
   });
 
   langButtonsFloat.forEach(btn => {
@@ -1190,11 +1253,15 @@ document.addEventListener('DOMContentLoaded', () => {
       playRetroSound('beep');
       tabButtons.forEach(t => {
         t.btn.classList.remove('active');
+        t.btn.setAttribute('aria-selected', 'false');
         t.content.style.display = 'none';
       });
       tab.btn.classList.add('active');
+      tab.btn.setAttribute('aria-selected', 'true');
       tab.content.style.display = 'block';
       activeTab = tab.name;
+      
+      announceSR(`Switched to ${tab.btn.textContent.trim()} tab.`);
       
       if (activeTab === 'assistant') {
         clearChatLog();

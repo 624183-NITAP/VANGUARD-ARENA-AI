@@ -384,8 +384,26 @@ describe('Vanguard Arena AI - Comprehensive Unit & Integration Tests', () => {
       const toggle = document.getElementById('btn-accessibility-mode');
       toggle.click();
       expect(document.body.classList.contains('accessibility-mode')).toBe(true);
+      expect(toggle.getAttribute('aria-pressed')).toBe('true');
       toggle.click();
       expect(document.body.classList.contains('accessibility-mode')).toBe(false);
+      expect(toggle.getAttribute('aria-pressed')).toBe('false');
+    });
+
+    it('should configure accessibility overrides for skip links and SVG seating components', () => {
+      const skipLink = document.querySelector('.skip-link');
+      expect(skipLink).toBeDefined();
+      expect(skipLink.getAttribute('href')).toBe('#main-content');
+
+      const announcer = document.getElementById('accessibility-announcer');
+      expect(announcer).toBeDefined();
+
+      const sector = document.getElementById('sector-101');
+      if (sector) {
+        expect(sector.getAttribute('tabindex')).toBe('0');
+        expect(sector.getAttribute('role')).toBe('img');
+        expect(sector.getAttribute('aria-label').toLowerCase()).toContain('sector-101');
+      }
     });
 
     it('should toggle float concierge chat window layout visibility', () => {
