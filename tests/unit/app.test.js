@@ -9,7 +9,7 @@ const htmlContent = fs.readFileSync(htmlPath, 'utf8');
 describe('Vanguard Arena AI - Unit Tests', () => {
   let VanguardOps;
 
-  beforeAll(() => {
+  beforeAll(async () => {
     // Set inner HTML in JSDOM context
     document.body.innerHTML = htmlContent;
 
@@ -49,7 +49,7 @@ describe('Vanguard Arena AI - Unit Tests', () => {
 
     // Load and execute app.js code
     const appPath = path.resolve(process.cwd(), 'app.js');
-    require(appPath);
+    await import(appPath);
 
     // Trigger DOMContentLoaded manually
     const event = new Event('DOMContentLoaded');
