@@ -5,13 +5,14 @@
   "main": "app.js",
   "type": "module",
   "scripts": {
-    "test": "npm run test:unit && npm run test:e2e",
+    "test": "vitest run --coverage && playwright test",
     "test:unit": "vitest run",
     "test:e2e": "playwright test",
     "server": "node server.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.40.0",
+    "@vitest/coverage-v8": "^1.6.1",
     "http-server": "^14.1.1",
     "jsdom": "^23.0.0",
     "vitest": "^1.0.0"

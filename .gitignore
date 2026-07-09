@@ -30,3 +30,8 @@ web_modules/
 *.njsproj
 *.sln
 *.sw?
+
+# Test reports and coverage
+coverage/
+playwright-report/
+test-results/

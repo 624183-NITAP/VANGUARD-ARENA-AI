@@ -3,10 +3,7 @@
  */
 "use strict";
 
-/**
- * Native SpeechRecognition constructor from browser window.
- */
-export const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+export const SpeechRecognition = typeof window !== 'undefined' ? (window.SpeechRecognition || window.webkitSpeechRecognition) : null;
 
 /**
  * Narrates text via the SpeechSynthesis API in the requested language.
@@ -49,9 +46,10 @@ export function speakAI(text, lang = 'en') {
  * @returns {object|null} The SpeechRecognition instance, or null if unsupported.
  */
 export function createSpeechRecognition({ onStart, onResult, onEnd, onError }) {
-  if (!SpeechRecognition) return null;
+  const SpeechRec = SpeechRecognition || (typeof window !== 'undefined' ? (window.SpeechRecognition || window.webkitSpeechRecognition) : null);
+  if (!SpeechRec) return null;
   
-  const recognition = new SpeechRecognition();
+  const recognition = new SpeechRec();
   recognition.continuous = false;
   
   if (onStart) recognition.onstart = onStart;
